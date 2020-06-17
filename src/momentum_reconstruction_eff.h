@@ -14,7 +14,6 @@
 #include <TProfile2D.h>
 
 #include "centrality.h"
-//#include <AnalysisTree/HadesCuts.h>
 
 namespace AnalysisTree {
 class MomentumReconctructionEff : public FillTask{
@@ -114,15 +113,12 @@ public:
     for( size_t i=0; i<reco_momentum_counts_.size(); ++i){
       reco_momentum_counts_.at(i)->Write();
       sim_momentum_counts_.at(i)->Write();
-      reco_momentum_counts_.at(i)->Divide(sim_momentum_counts_.at(i));
-      std::string name = "efficiency_"+std::to_string(5+i*10);
-      reco_momentum_counts_.at(i)->Write(name.data());
+//      reco_momentum_counts_.at(i)->Divide(sim_momentum_counts_.at(i));
+//      std::string name = "efficiency_"+std::to_string(5+i*10);
+//      reco_momentum_counts_.at(i)->Write(name.data());
 
       sim_track_density_.at(i)->Write();
       reco_track_density_.at(i)->Write();
-      reco_track_density_.at(i)->Divide(sim_track_density_.at(i));
-      name = "occupancy_"+std::to_string(5+i*10);
-      reco_track_density_.at(i)->Write(name.data());
     }
   }
 private:
