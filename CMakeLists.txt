@@ -25,11 +25,17 @@ link_directories(
         ${CMAKE_SOURCE_DIR}
         ${AnalysisTree_LIBRARY_DIR}
 )
+set(HEADERS
+        src/momentum_reconstruction_eff.h
+        src/hades_cuts.h
+        src/centrality.h
+        )
 
 set(SOURCES
         src/momentum_reconstruction_eff.cc
+        src/centrality.cc
         )
 add_definitions(${ROOT_CXX_FLAGS})
 
-add_executable(efficiency src/main.cc ${HEADERS} ${SOURCES})
-target_link_libraries(efficiency ${ROOT_LIBRARIES} AnalysisTreeBase)
+add_executable(efficiency src/main.cc ${SOURCES} ${HEADERS})
+target_link_libraries(efficiency ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra)
