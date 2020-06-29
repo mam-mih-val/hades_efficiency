@@ -5,7 +5,8 @@
 #include <iostream>
 #include <chrono>
 
-#include "momentum_reconstruction_eff.h"
+#include "reco_acceptance.h"
+#include "sim_acceptance.h"
 #include <AnalysisTree/TaskManager.h>
 int main(int n_args, char** args){
   if(n_args<2){
@@ -15,8 +16,10 @@ int main(int n_args, char** args){
   }
   std::string list{args[1]};
   AnalysisTree::TaskManager manager(list, "hades_analysis_tree");
-  auto * mom_rec_eff = new AnalysisTree::MomentumReconctructionEff;
+  auto * mom_rec_eff = new AnalysisTree::RecoAcceptance;
+  auto * mom_sim_eff = new AnalysisTree::SimAcceptance;
   manager.AddTask(mom_rec_eff);
+  manager.AddTask(mom_sim_eff);
   manager.SetOutFileName("out.root");
   manager.Init();
   auto start = std::chrono::system_clock::now();

@@ -26,16 +26,18 @@ link_directories(
         ${AnalysisTree_LIBRARY_DIR}
 )
 set(HEADERS
-        src/momentum_reconstruction_eff.h
-        src/hades_cuts.h
+        src/reco_acceptance.h
+        src/sim_acceptance.h
+        #        src/hades_cuts.h
         src/centrality.h
         )
 
 set(SOURCES
-        src/momentum_reconstruction_eff.cc
+        src/reco_acceptance.cc
+        src/sim_acceptance.cc
         src/centrality.cc
         )
 add_definitions(${ROOT_CXX_FLAGS})
 
-add_executable(efficiency src/main.cc ${SOURCES} ${HEADERS})
-target_link_libraries(efficiency ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra)
+add_executable(acceptance src/acceptance.cc ${SOURCES} ${HEADERS})
+target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra)
