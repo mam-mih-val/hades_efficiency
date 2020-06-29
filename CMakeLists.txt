@@ -41,3 +41,6 @@ add_definitions(${ROOT_CXX_FLAGS})
 
 add_executable(acceptance src/acceptance.cc ${SOURCES} ${HEADERS})
 target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra)
+
+add_executable(efficiency src/efficiency.cc)
+target_link_libraries(efficiency ${ROOT_LIBRARIES})
