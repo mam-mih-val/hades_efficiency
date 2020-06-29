@@ -24,7 +24,7 @@ module load compiler/gcc/9
 echo "loading " $ownroot
 source $ownroot
 
-echo "executing $build_dir/efficiency list.txt"
-$build_dir/efficiency list.txt
+echo "executing $build_dir/acceptance list.txt"
+$build_dir/acceptance list.txt
 
 echo JOB FINISHED!
