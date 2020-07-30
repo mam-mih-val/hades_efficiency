@@ -23,7 +23,7 @@ int main(int n_args, char** args){
   manager.SetOutFileName("out.root");
   manager.Init();
   auto start = std::chrono::system_clock::now();
-  manager.Run(10000);
+  manager.Run(-1);
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> duration = end-start;
   manager.Finish();

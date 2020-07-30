@@ -27,11 +27,14 @@ public:
     reco_header_ = static_cast<EventHeader*>(branch_map.at( "event_header" ));
     sim_tracks_ = static_cast<Particles *>(branch_map.at( "sim_tracks" ));
     reco_tracks_ = static_cast<Particles *>(branch_map.at( "mdc_vtx_tracks" ));
+    meta_hits_ = static_cast<HitDetector *>(branch_map.at( "meta_hits" ));
     sim_reco_matching_ = static_cast<Matching *>(branch_map.at( "sim_reco_tracks" ));
+    mdc_meta_matching_ = static_cast<Matching *>(branch_map.at( "mdc_meta_match" ));
     auto sim_event_config = config_->GetBranchConfig("sim_header");
     auto reco_event_config = config_->GetBranchConfig("event_header");
     auto sim_tracks_config = config_->GetBranchConfig("sim_tracks");
     auto reco_tracks_config = config_->GetBranchConfig("mdc_vtx_tracks");
+    auto meta_hits_config = config_->GetBranchConfig("meta_hits");
 
     fields_id_.insert(  std::make_pair( HITS_TOF_RPC, reco_event_config.GetFieldId("selected_tof_rpc_hits") )  );
     fields_id_.insert(  std::make_pair( PSI_RP, sim_event_config.GetFieldId("reaction_plane") )  );
@@ -45,6 +48,7 @@ public:
         DCA_XY, reco_tracks_config.GetFieldId("dca_xy") )  );
     fields_id_.insert(  std::make_pair(
         DCA_Z, reco_tracks_config.GetFieldId("dca_z") )  );
+    fields_id_.insert(  std::make_pair(META_MASS2, meta_hits_config.GetFieldId("mass2") )  );
 
     for( int i=0; i<8; ++i ) {
       int percentile = 2+i*5;
@@ -69,7 +73,9 @@ public:
     }
     momentum_err_ = new TProfile( "momentum_err", ";p, [GeV/c]; relative error", 100, 0.0, 3.5 );
     proton_yield_ = new TH1F( "pid_proton_yield", ";N protons; counts", 100, 0, 100 );
-    mass_mismatch_ = new TH2F( "mass_pt", "mass of mismatched;pt, [GeV/c];m, [GeV/c^{2}]",500, 0.0, 2.5, 500, 0.0, 2.5 );
+    mass_mismatched_ = new TH1F( "mass_mismatched", "mass of mismatched;m, [GeV/c^{2}]", 500, 0.0, 2.5 );
+    mass_matched_ = new TH1F( "mass_matched", "mass of matched;m, [GeV/c^{2}]", 500, 0.0, 2.5 );
+    mass_all_ = new TH1F( "mass_all", "mass of all;m, [GeV/c^{2}]", 500, 0.0, 2.5 );
   }
   void Exec() override {
     auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
@@ -81,8 +87,10 @@ public:
     int n_protons{0};
     for (int i = 0; i < n_reco_tracks; ++i) {
       int sim_id = sim_reco_matching_->GetMatchDirect(i);
-      auto r_track = (reco_tracks_->GetChannel(i));
-      auto s_track = (sim_tracks_->GetChannel( (sim_id) ));
+      int meta_id = mdc_meta_matching_->GetMatchDirect(i);
+      auto r_track = reco_tracks_->GetChannel(i);
+      auto r_hit = meta_hits_->GetChannel(meta_id);
+      auto s_track = sim_tracks_->GetChannel( (sim_id) );
       float m_reco = r_track.GetMass();
       float m_sim = s_track.GetMass();
 
@@ -109,17 +117,24 @@ public:
           pid_acceptance_sec_.at(centrality_class)->Fill( p_reco.Pt(), p_reco.Rapidity() - 0.74 );
         n_protons++;
       }
-      if( s_track.GetField<int>( fields_id_.at(SIM_GEANT_PID) ) == 14 &&
-          r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) != 14){
-        mass_mismatch_->Fill( p_reco.Pt(), p_reco.M() );
+      if( s_track.GetField<int>( fields_id_.at(SIM_GEANT_PID) ) != 14 )
+        continue;
+      auto mass = sqrtf(r_hit.GetField<float>(fields_id_.at(META_MASS2)));
+      if(r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) != 14 ){
+        mass_mismatched_->Fill( mass );
+      }if(r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) == 14 ){
+        mass_matched_->Fill( mass );
       }
+      mass_all_->Fill(mass);
     }
     proton_yield_->Fill(n_protons);
   }
   void Finish() override {
     momentum_err_->Write();
     proton_yield_->Write();
-    mass_mismatch_->Write();
+    mass_mismatched_->Write();
+    mass_matched_->Write();
+    mass_all_->Write();
     for( size_t i=0; i< pdg_acceptance_prim_.size(); ++i){
       pdg_acceptance_prim_.at(i)->Write();
       pdg_acceptance_sec_.at(i)->Write();
@@ -137,17 +152,22 @@ private:
     IS_PRIMARY,
     DCA_XY,
     DCA_Z,
+    META_MASS2,
   };
   EventHeader* sim_header_{nullptr};
   EventHeader* reco_header_{nullptr};
   Particles* sim_tracks_{nullptr};
   Particles* reco_tracks_{nullptr};
+  HitDetector* meta_hits_{nullptr};
   Matching* sim_reco_matching_{nullptr};
+  Matching*mdc_meta_matching_{nullptr};
 
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
   TH1F* proton_yield_{nullptr};
-  TH2F*mass_mismatch_{nullptr};
+  TH1F*mass_mismatched_{nullptr};
+  TH1F*mass_matched_{nullptr};
+  TH1F*mass_all_{nullptr};
   std::vector<TH2F*> pdg_acceptance_prim_;
   std::vector<TH2F*> pid_acceptance_prim_;
   std::vector<TH2F*> pdg_acceptance_sec_;
