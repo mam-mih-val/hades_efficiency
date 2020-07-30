@@ -6,7 +6,7 @@
 #include <TH2F.h>
 #include <iostream>
 int main(int n, char** args){
-  if( n < 2 ){
+  if( n < 3 ){
     std::cout << "Aim not specified" << std::endl;
     return 1;
   }

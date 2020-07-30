@@ -5,10 +5,11 @@
 #ifndef EFFICIENCY_SRC_SIM_ACCEPTANCE_H_
 #define EFFICIENCY_SRC_SIM_ACCEPTANCE_H_
 
-#include <AnalysisTree/EventHeader.h>
-#include <AnalysisTree/FillTask.h>
+#include <AnalysisTree/EventHeader.hpp>
+#include <AnalysisTree/FillTask.hpp>
 
-#include <AnalysisTree/Cuts.h>
+#include <AnalysisTree/Cuts.hpp>
+#include <AnalysisTree/Detector.hpp>
 #include <TChain.h>
 #include <TProfile2D.h>
 
@@ -35,6 +36,9 @@ class SimAcceptance : public FillTask {
         SIM_GEANT_PID, sim_tracks_config.GetFieldId("geant_pid")));
     fields_id_.insert(
         std::make_pair(IS_PRIMARY, sim_tracks_config.GetFieldId("is_primary")));
+    gen_flow_y_005_015_ = new TProfile( "gen_flow_c_0_5_y_005_015", ";pt; v_{1}", 16, 0.0, 1.6 );
+    gen_flow_y_035_045_ = new TProfile( "gen_flow_c_0_5_y_035_045", ";pt; v_{1}", 16, 0.0, 1.6 );
+    gen_flow_y_065_075_ = new TProfile( "gen_flow_c_0_5_y_065_075", ";pt; v_{1}", 16, 0.0, 1.6 );
 
     for (int i = 0; i < 8; ++i) {
       int percentile = 2 + i * 5;
@@ -55,6 +59,7 @@ class SimAcceptance : public FillTask {
         reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
     int centrality_class =
         Centrality::GetInstance()->GetCentralityClass5pc(hits_tof_rpc);
+    float psi_rp = sim_header_->GetField<float>(fields_id_.at(PSI_RP));
     if (centrality_class > 7) {
       return;
     }
@@ -71,6 +76,25 @@ class SimAcceptance : public FillTask {
         sim_acceptance_prim_.at(centrality_class)->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
         sim_acceptance_sec_.at(centrality_class)->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
+      if( centrality_class > 0 )
+        continue;
+      if( !s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) )
+        continue;
+
+      double y_cm = p_sim.Rapidity() - 0.74;
+      double v_n = cos( p_sim.Phi() - psi_rp );
+      if( -0.15 <= y_cm && y_cm <= -0.05  ) {
+        gen_flow_y_005_015_->Fill(p_sim.Pt(), v_n);
+        continue;
+      }
+      if( -0.45 <= y_cm && y_cm <= -0.35  ) {
+        gen_flow_y_035_045_->Fill(p_sim.Pt(), v_n );
+        continue;
+      }
+      if( -0.75 <= y_cm && y_cm <= -0.65  ) {
+        gen_flow_y_065_075_->Fill(p_sim.Pt(), v_n );
+        continue;
+      }
     }
   }
   void Finish() override {
@@ -79,6 +103,9 @@ class SimAcceptance : public FillTask {
       sim_acceptance_prim_.at(i)->Write();
       sim_acceptance_sec_.at(i)->Write();
     }
+    gen_flow_y_005_015_->Write();
+    gen_flow_y_035_045_->Write();
+    gen_flow_y_065_075_->Write();
   }
 
 private:
@@ -96,6 +123,9 @@ private:
   TH1F *proton_yield_{nullptr};
   std::vector<TH2F *> sim_acceptance_prim_;
   std::vector<TH2F *> sim_acceptance_sec_;
+  TProfile* gen_flow_y_005_015_;
+  TProfile* gen_flow_y_035_045_;
+  TProfile* gen_flow_y_065_075_;
 };
 } // namespace AnalysisTree
 #endif // EFFICIENCY_SRC_SIM_ACCEPTANCE_H_

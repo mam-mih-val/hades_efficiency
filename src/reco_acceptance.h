@@ -5,10 +5,11 @@
 #ifndef QUALITY_ASSURANCE_SRC_TREE_READER_H_
 #define QUALITY_ASSURANCE_SRC_TREE_READER_H_
 
-#include <AnalysisTree/EventHeader.h>
-#include <AnalysisTree/FillTask.h>
+#include <AnalysisTree/EventHeader.hpp>
+#include <AnalysisTree/FillTask.hpp>
 
-#include <AnalysisTree/Cuts.h>
+#include <AnalysisTree/Cuts.hpp>
+#include <AnalysisTree/Detector.hpp>
 #include <TChain.h>
 #include <TH3F.h>
 #include <TProfile2D.h>
@@ -68,6 +69,7 @@ public:
     }
     momentum_err_ = new TProfile( "momentum_err", ";p, [GeV/c]; relative error", 100, 0.0, 3.5 );
     proton_yield_ = new TH1F( "pid_proton_yield", ";N protons; counts", 100, 0, 100 );
+    mass_mismatch_ = new TH2F( "mass_pt", "mass of mismatched;pt, [GeV/c];m, [GeV/c^{2}]",500, 0.0, 2.5, 500, 0.0, 2.5 );
   }
   void Exec() override {
     auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
@@ -86,13 +88,12 @@ public:
 
       auto p_reco = r_track.Get4MomentumByMass(m_reco);
       auto p_sim = s_track.Get4MomentumByMass(m_sim);
-
-      if( r_track.GetField<float>( fields_id_.at(DCA_XY) ) > 15.0f )
-        continue;
-      if( fabsf(r_track.GetField<float>( fields_id_.at(DCA_Z) ) ) > 15.0f )
-        continue;
-
-      if( s_track.GetField<int>( fields_id_.at(SIM_GEANT_PID) ) == 14 ){
+//      if( fabsf(r_track.GetField<float>( fields_id_.at(DCA_XY) )) > 10.0f )
+//        continue;
+//      if( fabsf(r_track.GetField<float>( fields_id_.at(DCA_Z) ) ) > 10.0f )
+//        continue;
+      if( s_track.GetField<int>( fields_id_.at(SIM_GEANT_PID) ) == 14 &&
+          r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) == 14 ){
         if( s_track.GetField<bool>( fields_id_.at(IS_PRIMARY) ) )
           pdg_acceptance_prim_.at(centrality_class)->Fill( p_reco.Pt(), p_reco.Rapidity() - 0.74 );
         if( !s_track.GetField<bool>( fields_id_.at(IS_PRIMARY) ) )
@@ -100,6 +101,7 @@ public:
         double eff = fabs(p_reco.P() - p_sim.P())/p_sim.P();
         momentum_err_->Fill(p_sim.P(), eff);
       }
+
       if( r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) == 14 ){
         if( s_track.GetField<bool>( fields_id_.at(IS_PRIMARY) ) )
           pid_acceptance_prim_.at(centrality_class)->Fill( p_reco.Pt(), p_reco.Rapidity() - 0.74 );
@@ -107,12 +109,17 @@ public:
           pid_acceptance_sec_.at(centrality_class)->Fill( p_reco.Pt(), p_reco.Rapidity() - 0.74 );
         n_protons++;
       }
+      if( s_track.GetField<int>( fields_id_.at(SIM_GEANT_PID) ) == 14 &&
+          r_track.GetField<int>( fields_id_.at(RECO_GEANT_PID) ) != 14){
+        mass_mismatch_->Fill( p_reco.Pt(), p_reco.M() );
+      }
     }
     proton_yield_->Fill(n_protons);
   }
   void Finish() override {
     momentum_err_->Write();
     proton_yield_->Write();
+    mass_mismatch_->Write();
     for( size_t i=0; i< pdg_acceptance_prim_.size(); ++i){
       pdg_acceptance_prim_.at(i)->Write();
       pdg_acceptance_sec_.at(i)->Write();
@@ -140,6 +147,7 @@ private:
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
   TH1F* proton_yield_{nullptr};
+  TH2F*mass_mismatch_{nullptr};
   std::vector<TH2F*> pdg_acceptance_prim_;
   std::vector<TH2F*> pid_acceptance_prim_;
   std::vector<TH2F*> pdg_acceptance_sec_;

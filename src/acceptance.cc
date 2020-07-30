@@ -7,7 +7,7 @@
 
 #include "reco_acceptance.h"
 #include "sim_acceptance.h"
-#include <AnalysisTree/TaskManager.h>
+#include <AnalysisTree/TaskManager.hpp>
 int main(int n_args, char** args){
   if(n_args<2){
     std::cout << "Error: missing file list operand" << std::endl;
@@ -15,7 +15,7 @@ int main(int n_args, char** args){
     return 1;
   }
   std::string list{args[1]};
-  AnalysisTree::TaskManager manager(list, "hades_analysis_tree");
+  AnalysisTree::TaskManager manager({list}, {"hades_analysis_tree"});
   auto * mom_rec_eff = new AnalysisTree::RecoAcceptance;
   auto * mom_sim_eff = new AnalysisTree::SimAcceptance;
   manager.AddTask(mom_rec_eff);
@@ -23,7 +23,7 @@ int main(int n_args, char** args){
   manager.SetOutFileName("out.root");
   manager.Init();
   auto start = std::chrono::system_clock::now();
-  manager.Run(-1);
+  manager.Run(10000);
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> duration = end-start;
   manager.Finish();
