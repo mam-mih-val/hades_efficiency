@@ -4,6 +4,7 @@ project(efficiency)
 set(CMAKE_CXX_STANDARD 17)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 list(APPEND CMAKE_PREFIX_PATH $ENV{AnalysisTree_HOME})
+list(APPEND CMAKE_PREFIX_PATH $ENV{HadesUtils_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${AnalysisTree_HOME})
 
 find_package(ROOT REQUIRED COMPONENTS RIO Tree)
@@ -18,6 +19,7 @@ include_directories(
         ${CMAKE_SOURCE_DIR}/src
         ${ROOT_INCLUDE_DIRS}
         ${AnalysisTree_INCLUDE_DIR}
+        $ENV{HadesUtils_DIR}/include
 )
 
 link_directories(
@@ -28,19 +30,16 @@ link_directories(
 set(HEADERS
         src/reco_acceptance.h
         src/sim_acceptance.h
-        #        src/hades_cuts.h
-        src/centrality.h
         )
 
 set(SOURCES
         src/reco_acceptance.cc
         src/sim_acceptance.cc
-        src/centrality.cc
         )
 add_definitions(${ROOT_CXX_FLAGS})
 
 add_executable(acceptance src/acceptance.cc ${SOURCES} ${HEADERS})
-target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra)
+target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra $ENV{HadesUtils_DIR}/lib/libHadesUtils.so)
 
 add_executable(efficiency src/efficiency.cc)
 target_link_libraries(efficiency ${ROOT_LIBRARIES})

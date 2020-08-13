@@ -6,7 +6,7 @@
 #include <TH2F.h>
 #include <iostream>
 int main(int n, char** args){
-  if( n < 3 ){
+  if( n < 1 ){
     std::cout << "Aim not specified" << std::endl;
     return 1;
   }
@@ -37,14 +37,14 @@ int main(int n, char** args){
     name = "gen_acceptance_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), gen_acc_sec );
 
-    name = "pdg_acceptance_prim_" + std::to_string(percentile);
+    name = "pdg_tracks_prim_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pdg_acc_prim );
-    name = "pdg_acceptance_sec_" + std::to_string(percentile);
+    name = "pdg_tracks_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pdg_acc_sec );
 
-    name = "pid_acceptance_prim_" + std::to_string(percentile);
+    name = "pid_tracks_prim_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pid_acc_prim );
-    name = "pid_acceptance_sec_" + std::to_string(percentile);
+    name = "pid_tracks_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pid_acc_sec );
     pid_acc_prim->Divide( pdg_acc_prim );
     pid_mismatch_prim.emplace_back( pid_acc_prim );
