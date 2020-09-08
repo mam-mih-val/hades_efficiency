@@ -17,44 +17,50 @@ int main(int n, char** args){
     return 2;
   }
   // detector efficiency
-  std::vector<TH2F*> eff_prim;
-  std::vector<TH2F*> eff_sec;
-  // particle identification effects
-  std::vector<TH2F*> pid_mismatch_prim;
-  std::vector<TH2F*> pid_mismatch_sec;
+  std::vector<TH2F*> efficiency;
+  std::vector<TH2F*> contamination;
+  std::vector<TH2F*> mismatch;
 
-  TH2F* gen_acc_prim;
-  TH2F* gen_acc_sec;
-  TH2F* pdg_acc_prim;
-  TH2F* pdg_acc_sec;
-  TH2F* pid_acc_prim;
-  TH2F* pid_acc_sec;
+  TH2F* gen_prim;
+  TH2F* gen_sec;
+  TH2F* pdg_prim;
+  TH2F* pdg_sec;
+  TH2F* pid_prim;
+  TH2F* pid_sec;
+  TH2F* pid_reco;
+  TH2F* pid_mismatch;
 
   int percentile = 2;
   while( percentile < 40 ){
     std::string name = "gen_acceptance_prim_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), gen_acc_prim );
+    file_in->GetObject( name.data(), gen_prim);
     name = "gen_acceptance_sec_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), gen_acc_sec );
+    file_in->GetObject( name.data(), gen_sec);
 
     name = "pdg_tracks_prim_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), pdg_acc_prim );
+    file_in->GetObject( name.data(), pdg_prim);
     name = "pdg_tracks_sec_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), pdg_acc_sec );
+    file_in->GetObject( name.data(), pdg_sec);
 
     name = "pid_tracks_prim_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), pid_acc_prim );
+    file_in->GetObject( name.data(), pid_prim);
     name = "pid_tracks_sec_" + std::to_string(percentile);
-    file_in->GetObject( name.data(), pid_acc_sec );
-    pid_acc_prim->Divide( pdg_acc_prim );
-    pid_mismatch_prim.emplace_back( pid_acc_prim );
-    pid_acc_sec->Divide( pdg_acc_sec );
-    pid_mismatch_sec.emplace_back( pid_acc_sec );
+    file_in->GetObject( name.data(), pid_sec);
 
-    pdg_acc_prim->Divide( gen_acc_prim );
-    pdg_acc_sec->Divide( gen_acc_sec );
-    eff_prim.emplace_back(pdg_acc_prim);
-    eff_sec.emplace_back(pdg_acc_sec);
+    name = "pid_reco_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), pid_reco );
+    name = "pid_tracks_mismatch_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), pid_mismatch );
+
+    pdg_sec->Add(pid_mismatch);
+    pdg_sec->Divide(pid_reco);
+
+    pdg_prim->Divide(gen_prim);
+    pid_mismatch->Divide(pid_reco);
+
+    efficiency.emplace_back(pdg_prim);
+    contamination.emplace_back(pdg_sec);
+    mismatch.emplace_back(pid_mismatch);
 
     percentile+=5;
   }
@@ -64,17 +70,14 @@ int main(int n, char** args){
   percentile=2;
   int i=0;
   while (percentile<40){
-    std::string name = "efficiency_prim_" + std::to_string(percentile);
-    eff_prim.at(i)->Write(name.data());
+    std::string name = "efficiency_" + std::to_string(percentile);
+    efficiency.at(i)->Write(name.data());
 
-    name = "efficiency_sec_" + std::to_string(percentile);
-    eff_sec.at(i)->Write(name.data());
+    name = "contamination_" + std::to_string(percentile);
+    contamination.at(i)->Write(name.data());
 
-    name = "pid_mismatch_prim_" + std::to_string(percentile);
-    pid_mismatch_prim.at(i)->Write(name.data());
-
-    name = "pid_mismatch_sec_" + std::to_string(percentile);
-    pid_mismatch_sec.at(i)->Write(name.data());
+    name = "pid_mismatch_" + std::to_string(percentile);
+    mismatch.at(i)->Write(name.data());
 
     i++;
     percentile+=5;

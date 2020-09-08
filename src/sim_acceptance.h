@@ -26,6 +26,7 @@ private:
     HITS_TOF_RPC,
     SIM_GEANT_PID,
     IS_PRIMARY,
+    PSI_RP
   };
   EventHeader *sim_header_{nullptr};
   EventHeader *reco_header_{nullptr};
@@ -34,6 +35,8 @@ private:
   std::map<int, int> fields_id_;
   std::vector<TH2F *> gen_tracks_prim_;
   std::vector<TH2F *> gen_tracks_sec_;
+  std::vector<TH2F *> gen_prim_phi_pt_midrapidity_;
+  std::vector<TH2F *> gen_prim_delta_phi_pt_midrapidity_;
 };
 } // namespace AnalysisTree
 #endif // EFFICIENCY_SRC_SIM_ACCEPTANCE_H_

@@ -20,23 +20,34 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
       std::make_pair(SIM_GEANT_PID, sim_tracks_config.GetFieldId("geant_pid")));
   fields_id_.insert(
       std::make_pair(IS_PRIMARY, sim_tracks_config.GetFieldId("is_primary")));
+  fields_id_.insert(std::make_pair(PSI_RP,
+                                   sim_event_config.GetFieldId("reaction_plane")));
 
   for (int i = 0; i < 8; ++i) {
     int percentile = 2 + i * 5;
-    std::string name = "gen_acceptance_prim_" + std::to_string(percentile);
+    std::string name = "gen_tracks_prim_" + std::to_string(percentile);
     gen_tracks_prim_.push_back(
         new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
                  2.0, 100, -1.0, 1.0));
-    name = "gen_acceptance_sec_" + std::to_string(percentile);
+    name = "gen_tracks_sec_" + std::to_string(percentile);
     gen_tracks_sec_.push_back(
         new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
                  2.0, 100, -1.0, 1.0));
-    name = "sim_density_" + std::to_string(percentile);
+
+    name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
+    gen_prim_phi_pt_midrapidity_.push_back(
+        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
+                 100, -3.15, 3.15));
+    name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
+    gen_prim_delta_phi_pt_midrapidity_.push_back(
+        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
+                 100, -3.15, 3.15));
   }
 }
 void SimAcceptance::Exec() {
   auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
   int centrality_class = (int) HadesUtils::Centrality::GetClass(hits_tof_rpc, HadesUtils::DATA_TYPE::AuAu_1_23AGeV);
+  auto psi_rp = sim_header_->GetField<float>( fields_id_.at(PSI_RP) );
   if (centrality_class > 7) {
     return;
   }
@@ -47,22 +58,32 @@ void SimAcceptance::Exec() {
       continue;
     float m_sim = s_track.GetMass();
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
-    if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
+    if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
+      if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
+        gen_prim_phi_pt_midrapidity_.at(centrality_class)
+            ->Fill(p_sim.Pt(), p_sim.Phi());
+        auto delta_phi = p_sim.Phi()-psi_rp;
+        if ( delta_phi < -M_PI )
+          delta_phi+=2*M_PI;
+        if (delta_phi > M_PI)
+          delta_phi-=2*M_PI;
+        gen_prim_delta_phi_pt_midrapidity_.at(centrality_class)
+            ->Fill(p_sim.Pt(), delta_phi);
+      }
+    }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
           ->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
-    if (centrality_class > 0)
-      continue;
-    if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
-      continue;
   }
 }
 void SimAcceptance::Finish() {
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
+    gen_prim_phi_pt_midrapidity_.at(i)->Write();
+    gen_prim_delta_phi_pt_midrapidity_.at(i)->Write();
   }
 }
 } // namespace AnalysisTree

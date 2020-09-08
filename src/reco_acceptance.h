@@ -31,13 +31,15 @@ private:
     SIM_GEANT_PID,
     RECO_GEANT_PID,
     IS_PRIMARY,
+    PSI_RP
   };
   EventHeader* reco_header_{nullptr};
+  EventHeader* sim_header_{nullptr};
   Particles* sim_tracks_{nullptr};
   Particles* reco_tracks_{nullptr};
   HitDetector* meta_hits_{nullptr};
-  Matching* sim_reco_matching_{nullptr};
-  Matching*mdc_meta_matching_{nullptr};
+  Matching*reco_sim_matching_{nullptr};
+  Matching* mdc_meta_matching_{nullptr};
 
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
@@ -48,6 +50,12 @@ private:
   std::vector<TH2F*> pid_tracks_sec_; // !is_primary
   std::vector<TH2F*> pid_tracks_mismatch_; // Gen-PID != Reco-PID
   std::vector<TH2F*> pid_reco_; // pid_prim+pid_sec+pid_mismatch
+
+  std::vector<TH2F*> pid_prim_phi_pt_midrapidity_;
+  std::vector<TH2F*> pdg_prim_phi_pt_midrapidity_;
+
+  std::vector<TH2F*> pid_prim_delta_phi_pt_midrapidity_;
+  std::vector<TH2F*> pdg_prim_delta_phi_pt_midrapidity_;
 };
 } // namespace AnalysisTree
 #endif // QUALITY_ASSURANCE_SRC_TREE_READER_H_
