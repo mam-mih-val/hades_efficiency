@@ -35,29 +35,27 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     int percentile = 2 + i * 5;
     std::string name = "pdg_tracks_prim_" + std::to_string(percentile);
     pdg_tracks_prim_.push_back(new TH2F(name.data(),
-                                        ";p_{T}, [GeV/c]; y-y_{beam}; conuts",
-                                        100, 0.0, 2.0, 100, -1.0, 1.0));
+                                        "; y-y_{beam};p_{T}, [GeV/c]; conuts",
+                                        100, -1.0, 1.0, 100, 0.0, 2.0 ));
     name = "pdg_tracks_sec_" + std::to_string(percentile);
     pdg_tracks_sec_.push_back(new TH2F(name.data(),
-                                       ";p_{T}, [GeV/c]; y-y_{beam}; conuts",
-                                       100, 0.0, 2.0, 100, -1.0, 1.0));
+                                       ";y-y_{beam};p_{T}, [GeV/c];  conuts",
+                                       100, -1.0, 1.0, 100, 0.0, 2.0 ));
 
     name = "pid_tracks_prim_" + std::to_string(percentile);
     pid_tracks_prim_.push_back(new TH2F(name.data(),
-                                        ";p_{T}, [GeV/c]; y-y_{beam}; conuts",
-                                        100, 0.0, 2.0, 100, -1.0, 1.0));
+                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
+                                        100, -1.0, 1.0, 100, 0.0, 2.0 ));
     name = "pid_tracks_sec_" + std::to_string(percentile);
     pid_tracks_sec_.push_back(new TH2F(name.data(),
-                                       ";p_{T}, [GeV/c]; y-y_{beam}; conuts",
-                                       100, 0.0, 2.0, 100, -1.0, 1.0));
+                                       ";y-y_{beam};p_{T}, [GeV/c];  conuts",
+                                       100, -1.0, 1.0, 100, 0.0, 2.0 ));
     name = "pid_tracks_mismatch_" + std::to_string(percentile);
     pid_tracks_mismatch_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
-                 2.0, 100, -1.0, 1.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -1.0, 1.0, 100, 0.0,2.0));
     name = "pid_reco_" + std::to_string(percentile);
     pid_reco_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
-                 2.0, 100, -1.0, 1.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -1.0, 1.0, 100, 0.0,2.0));
 
     name = "pid_prim_phi_pt_midrapidity_" + std::to_string(percentile);
     pid_prim_phi_pt_midrapidity_.push_back(
@@ -70,12 +68,12 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
 
     name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     pid_prim_delta_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
+        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 100, 0.0,2.0,
+                 100, -3.5, 3.5));
     name = "pdg_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     pdg_prim_delta_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
+        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 100, 0.0,2.0,
+                 100, -3.5, 3.5));
   }
   momentum_err_ = new TProfile("momentum_err", ";p, [GeV/c]; relative error",
                                100, 0.0, 3.5);
@@ -105,10 +103,10 @@ void RecoAcceptance::Exec() {
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
-    pid_reco_.at(centrality_class)->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
+    pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       pid_tracks_prim_.at(centrality_class)
-          ->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
+          ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
       if( -0.05 < p_reco.Rapidity() - 0.74 && p_reco.Rapidity() - 0.74 < 0.05 ) {
         pid_prim_phi_pt_midrapidity_.at(centrality_class)
             ->Fill(p_reco.Pt(), p_reco.Phi());
@@ -122,30 +120,30 @@ void RecoAcceptance::Exec() {
       }
       if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) == 14) {
         pdg_tracks_prim_.at(centrality_class)
-            ->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
-        if( -0.05 < p_reco.Rapidity() - 0.74 && p_reco.Rapidity() - 0.74 < 0.05 ) {
+            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+        if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
           pdg_prim_phi_pt_midrapidity_.at(centrality_class)
-              ->Fill(p_reco.Pt(), p_reco.Phi());
-          auto delta_phi = p_reco.Phi()-psi_rp;
+              ->Fill(p_sim.Pt(), p_sim.Phi());
+          auto delta_phi = p_sim.Phi()-psi_rp;
           if ( delta_phi < -M_PI )
             delta_phi+=2*M_PI;
           if (delta_phi > M_PI)
             delta_phi-=2*M_PI;
           pdg_prim_delta_phi_pt_midrapidity_.at(centrality_class)
-              ->Fill(p_reco.Pt(), delta_phi);
+              ->Fill(p_sim.Pt(), delta_phi);
         }
       }
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       pid_tracks_sec_.at(centrality_class)
-          ->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
+          ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
       if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) == 14)
         pdg_tracks_sec_.at(centrality_class)
-            ->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
+            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     }
     if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) != 14)
       pid_tracks_mismatch_.at(centrality_class)
-          ->Fill(p_reco.Pt(), p_reco.Rapidity() - 0.74);
+          ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
 
     sim_matches.push_back(sim_id);
   }

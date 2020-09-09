@@ -27,21 +27,21 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     int percentile = 2 + i * 5;
     std::string name = "gen_tracks_prim_" + std::to_string(percentile);
     gen_tracks_prim_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
-                 2.0, 100, -1.0, 1.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
+                 100, -1.0, 1.0, 100, 0.0,2.0));
     name = "gen_tracks_sec_" + std::to_string(percentile);
     gen_tracks_sec_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; y-y_{beam}; conuts", 100, 0.0,
-                 2.0, 100, -1.0, 1.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
+                 100, -1.0, 1.0, 100, 0.0,2.0));
 
     name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
     gen_prim_phi_pt_midrapidity_.push_back(
         new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
+                 100, -3.5, 3.5));
     name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     gen_prim_delta_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
+        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 100, 0.0,2.0,
+                 100, -3.5, 3.5));
   }
 }
 void SimAcceptance::Exec() {
@@ -60,7 +60,7 @@ void SimAcceptance::Exec() {
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
-          ->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
+          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
         gen_prim_phi_pt_midrapidity_.at(centrality_class)
             ->Fill(p_sim.Pt(), p_sim.Phi());
@@ -75,7 +75,7 @@ void SimAcceptance::Exec() {
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
-          ->Fill(p_sim.Pt(), p_sim.Rapidity() - 0.74);
+          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
   }
 }
 void SimAcceptance::Finish() {

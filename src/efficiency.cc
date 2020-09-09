@@ -18,12 +18,18 @@ int main(int n, char** args){
   }
   // detector efficiency
   std::vector<TH2F*> efficiency;
+  std::vector<TH2F*> midrapidity_pt_phi_efficiency;
+  std::vector<TH2F*> midrapidity_pt_delta_phi_efficiency;
   std::vector<TH2F*> contamination;
   std::vector<TH2F*> mismatch;
 
   TH2F* gen_prim;
+  TH2F* gen_prim_pt_phi;
+  TH2F* gen_prim_pt_delta_phi;
   TH2F* gen_sec;
   TH2F* pdg_prim;
+  TH2F* pdg_prim_pt_phi;
+  TH2F* pdg_prim_pt_delta_phi;
   TH2F* pdg_sec;
   TH2F* pid_prim;
   TH2F* pid_sec;
@@ -32,9 +38,9 @@ int main(int n, char** args){
 
   int percentile = 2;
   while( percentile < 40 ){
-    std::string name = "gen_acceptance_prim_" + std::to_string(percentile);
+    std::string name = "gen_tracks_prim_" + std::to_string(percentile);
     file_in->GetObject( name.data(), gen_prim);
-    name = "gen_acceptance_sec_" + std::to_string(percentile);
+    name = "gen_tracks_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), gen_sec);
 
     name = "pdg_tracks_prim_" + std::to_string(percentile);
@@ -52,16 +58,34 @@ int main(int n, char** args){
     name = "pid_tracks_mismatch_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pid_mismatch );
 
+    name = "pdg_prim_phi_pt_midrapidity_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), pdg_prim_pt_phi );
+
+    name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), pdg_prim_pt_delta_phi );
+
+    name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), gen_prim_pt_phi );
+
+    name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
+    file_in->GetObject( name.data(), gen_prim_pt_delta_phi );
+
     pdg_sec->Add(pid_mismatch);
     pdg_sec->Divide(pid_reco);
 
     pdg_prim->Divide(gen_prim);
     pid_mismatch->Divide(pid_reco);
 
+    pdg_prim_pt_phi->Divide(gen_prim_pt_phi);
+    pdg_prim_pt_delta_phi->Rebin2D(5, 1);
+    gen_prim_pt_delta_phi->Rebin2D(5, 1);
+    pdg_prim_pt_delta_phi->Divide(gen_prim_pt_delta_phi);
+
     efficiency.emplace_back(pdg_prim);
     contamination.emplace_back(pdg_sec);
     mismatch.emplace_back(pid_mismatch);
-
+    midrapidity_pt_phi_efficiency.emplace_back(pdg_prim_pt_phi);
+    midrapidity_pt_delta_phi_efficiency.emplace_back(pdg_prim_pt_delta_phi);
     percentile+=5;
   }
 
@@ -78,6 +102,12 @@ int main(int n, char** args){
 
     name = "pid_mismatch_" + std::to_string(percentile);
     mismatch.at(i)->Write(name.data());
+
+    name = "pt_phi_eff_midrapidity_"+std::to_string(percentile);
+    midrapidity_pt_phi_efficiency.at(i)->Write(name.data());
+
+    name = "pt_delta_phi_eff_midrapidity_"+std::to_string(percentile);
+    midrapidity_pt_delta_phi_efficiency.at(i)->Write(name.data());
 
     i++;
     percentile+=5;
