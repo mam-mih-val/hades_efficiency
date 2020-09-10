@@ -103,7 +103,7 @@ void RecoAcceptance::Exec() {
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
-    pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
+    pid_reco_.at(centrality_class)->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       pid_tracks_prim_.at(centrality_class)
           ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
@@ -143,8 +143,7 @@ void RecoAcceptance::Exec() {
     }
     if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) != 14)
       pid_tracks_mismatch_.at(centrality_class)
-          ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
-
+          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     sim_matches.push_back(sim_id);
   }
 }
