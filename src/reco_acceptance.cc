@@ -96,27 +96,27 @@ void RecoAcceptance::Exec() {
     auto r_hit = meta_hits_->GetChannel(meta_id);
     auto s_track = sim_tracks_->GetChannel((sim_id));
 
-    if (r_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) != 14)
-      continue;
     float m_reco = r_track.GetMass();
     float m_sim = s_track.GetMass();
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
-    pid_reco_.at(centrality_class)->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
-      pid_tracks_prim_.at(centrality_class)
-          ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
-      if( -0.05 < p_reco.Rapidity() - 0.74 && p_reco.Rapidity() - 0.74 < 0.05 ) {
-        pid_prim_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_reco.Pt(), p_reco.Phi());
-        auto delta_phi = p_reco.Phi()-psi_rp;
-        if ( delta_phi < -M_PI )
-          delta_phi+=2*M_PI;
-        if (delta_phi > M_PI)
-          delta_phi-=2*M_PI;
-        pid_prim_delta_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_reco.Pt(), delta_phi);
+      if( r_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) != 14 ) {
+        pid_tracks_prim_.at(centrality_class)
+            ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
+        if (-0.05 < p_reco.Rapidity() - 0.74 &&
+            p_reco.Rapidity() - 0.74 < 0.05) {
+          pid_prim_phi_pt_midrapidity_.at(centrality_class)
+              ->Fill(p_reco.Pt(), p_reco.Phi());
+          auto delta_phi = p_reco.Phi() - psi_rp;
+          if (delta_phi < -M_PI)
+            delta_phi += 2 * M_PI;
+          if (delta_phi > M_PI)
+            delta_phi -= 2 * M_PI;
+          pid_prim_delta_phi_pt_midrapidity_.at(centrality_class)
+              ->Fill(p_reco.Pt(), delta_phi);
+        }
       }
       if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) == 14) {
         pdg_tracks_prim_.at(centrality_class)
@@ -134,6 +134,9 @@ void RecoAcceptance::Exec() {
         }
       }
     }
+    if (r_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) != 14)
+      continue;
+    pid_reco_.at(centrality_class)->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       pid_tracks_sec_.at(centrality_class)
           ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());

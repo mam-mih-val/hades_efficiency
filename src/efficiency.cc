@@ -77,8 +77,8 @@ int main(int n, char** args){
     pid_mismatch->Divide(pid_reco);
 
     pdg_prim_pt_phi->Divide(gen_prim_pt_phi);
-    pdg_prim_pt_delta_phi->Rebin2D(5, 1);
-    gen_prim_pt_delta_phi->Rebin2D(5, 1);
+    pdg_prim_pt_delta_phi->Rebin2D(5, 4);
+    gen_prim_pt_delta_phi->Rebin2D(5, 4);
     pdg_prim_pt_delta_phi->Divide(gen_prim_pt_delta_phi);
 
     efficiency.emplace_back(pdg_prim);
