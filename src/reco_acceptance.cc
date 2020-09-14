@@ -127,7 +127,7 @@ void RecoAcceptance::Exec() {
               ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       }
     }
-    if( s_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) == 14 ){
+    if( s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) == 14 ){
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pdg_tracks_prim_.at(centrality_class)
             ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
@@ -144,7 +144,7 @@ void RecoAcceptance::Exec() {
         }
       }
     }
-    if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) != 14)
+    if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) != 14 && r_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) == 14 )
       pid_tracks_mismatch_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
     sim_matches.push_back(sim_id);
