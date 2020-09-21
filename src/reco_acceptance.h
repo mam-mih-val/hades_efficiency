@@ -31,7 +31,11 @@ private:
     SIM_GEANT_PID,
     RECO_GEANT_PID,
     IS_PRIMARY,
-    PSI_RP
+    PSI_RP,
+    LAYERS_0,
+    LAYERS_1,
+    LAYERS_2,
+    LAYERS_3,
   };
   EventHeader* reco_header_{nullptr};
   EventHeader* sim_header_{nullptr};
@@ -56,6 +60,13 @@ private:
 
   std::vector<TH2F*> pid_prim_delta_phi_pt_midrapidity_;
   std::vector<TH2F*> pdg_prim_delta_phi_pt_midrapidity_;
+
+  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers0_;
+  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers1_;
+  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers2_;
+  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers3_;
+
+  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers_all_;
 };
 } // namespace AnalysisTree
 #endif // QUALITY_ASSURANCE_SRC_TREE_READER_H_

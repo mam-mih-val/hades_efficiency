@@ -28,6 +28,14 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
       std::make_pair(IS_PRIMARY, sim_tracks_config.GetFieldId("is_primary")));
   fields_id_.insert(std::make_pair(RECO_GEANT_PID,
                                    reco_tracks_config.GetFieldId("geant_pid")));
+  fields_id_.insert(std::make_pair(LAYERS_0,
+                                   reco_tracks_config.GetFieldId("layers_0")));
+  fields_id_.insert(std::make_pair(LAYERS_1,
+                                   reco_tracks_config.GetFieldId("layers_1")));
+  fields_id_.insert(std::make_pair(LAYERS_2,
+                                   reco_tracks_config.GetFieldId("layers_2")));
+  fields_id_.insert(std::make_pair(LAYERS_3,
+                                   reco_tracks_config.GetFieldId("layers_3")));
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
@@ -74,6 +82,31 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     pdg_prim_delta_phi_pt_midrapidity_.push_back(
         new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 100, 0.0,2.0,
                  100, -3.5, 3.5));
+
+    name = "pgd_prim_delta_phi_pt_layers0_" + std::to_string(percentile);
+    pgd_prim_delta_phi_pt_layers0_.push_back(
+        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 0 station; conuts", 16, 0.0, 1.6,
+                 35, -3.5, 3.5, 7, 0.0, 7.0));
+
+    name = "pgd_prim_delta_phi_pt_layers1_" + std::to_string(percentile);
+    pgd_prim_delta_phi_pt_layers1_.push_back(
+        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 1 station; conuts", 16, 0.0, 1.6,
+                 35, -3.5, 3.5, 7, 0.0, 7.0));
+
+    name = "pgd_prim_delta_phi_pt_layers2_" + std::to_string(percentile);
+    pgd_prim_delta_phi_pt_layers2_.push_back(
+        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 2 station; conuts", 16, 0.0, 1.6,
+                 35, -3.5, 3.5, 7, 0.0, 7.0));
+
+    name = "pgd_prim_delta_phi_pt_layers3_" + std::to_string(percentile);
+    pgd_prim_delta_phi_pt_layers3_.push_back(
+        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 3 station; conuts", 16, 0.0, 1.6,
+                 35, -3.5, 3.5, 7, 0.0, 7.0));
+
+    name = "pgd_prim_delta_phi_pt_layers_all_" + std::to_string(percentile);
+    pgd_prim_delta_phi_pt_layers_all_.push_back(
+        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in all stations; conuts", 16, 0.0, 1.6,
+                 35, -3.5, 3.5, 6667, 0.0, 6667.0));
   }
   momentum_err_ = new TProfile("momentum_err", ";p, [GeV/c]; relative error",
                                100, 0.0, 3.5);
@@ -91,6 +124,8 @@ void RecoAcceptance::Exec() {
   int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
+    if( sim_id == AnalysisTree::UndefValueInt )
+      continue;
     int meta_id = mdc_meta_matching_->GetMatchDirect(i);
     auto r_track = reco_tracks_->GetChannel(i);
     auto r_hit = meta_hits_->GetChannel(meta_id);
@@ -100,6 +135,31 @@ void RecoAcceptance::Exec() {
     float m_sim = s_track.GetMass();
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
+
+    if( s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)==14) ){
+      if( s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) ){
+        int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
+        int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
+        int layers_2 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
+        int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
+        int layers_combination = layers_0*1e+3+layers_1*1e+2+layers_2*1e+1+layers_3*1e+0;
+        auto delta_phi = p_sim.Phi() - psi_rp;
+        if (delta_phi < -M_PI)
+          delta_phi += 2 * M_PI;
+        if (delta_phi > M_PI)
+          delta_phi -= 2 * M_PI;
+        pgd_prim_delta_phi_pt_layers0_.at(centrality_class)->Fill(
+            p_sim.Pt(), delta_phi, layers_0);
+        pgd_prim_delta_phi_pt_layers1_.at(centrality_class)->Fill(
+            p_sim.Pt(), delta_phi, layers_1);
+        pgd_prim_delta_phi_pt_layers2_.at(centrality_class)->Fill(
+            p_sim.Pt(), delta_phi, layers_2);
+        pgd_prim_delta_phi_pt_layers3_.at(centrality_class)->Fill(
+            p_sim.Pt(), delta_phi, layers_3);
+        pgd_prim_delta_phi_pt_layers_all_.at(centrality_class)->Fill(
+            p_sim.Pt(), delta_phi, layers_combination);
+      }
+    }
 
     if( r_track.GetField<int>(fields_id_.at(RECO_GEANT_PID)) == 14 ){
       pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
@@ -169,6 +229,13 @@ void RecoAcceptance::Finish() {
 
     pid_prim_delta_phi_pt_midrapidity_.at(i)->Write();
     pdg_prim_delta_phi_pt_midrapidity_.at(i)->Write();
+
+    pgd_prim_delta_phi_pt_layers0_.at(i)->Write();
+    pgd_prim_delta_phi_pt_layers1_.at(i)->Write();
+    pgd_prim_delta_phi_pt_layers2_.at(i)->Write();
+    pgd_prim_delta_phi_pt_layers3_.at(i)->Write();
+
+    pgd_prim_delta_phi_pt_layers_all_.at(i)->Write();
   }
 }
 } // namespace AnalysisTree

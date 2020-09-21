@@ -36,7 +36,7 @@ int main(int n_args, char** args){
   manager.AddTask(sim_acceptance);
   manager.SetOutFileName("out.root");
   manager.Init();
-  manager.Run(-1);
+  manager.Run(10000);
   manager.Finish();
   return 0;
 }
