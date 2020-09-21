@@ -138,26 +138,29 @@ void RecoAcceptance::Exec() {
 
     if( s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)==14) ){
       if( s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) ){
-        int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
-        int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
-        int layers_2 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
-        int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
-        int layers_combination = layers_0*1e+3+layers_1*1e+2+layers_2*1e+1+layers_3*1e+0;
-        auto delta_phi = p_sim.Phi() - psi_rp;
-        if (delta_phi < -M_PI)
-          delta_phi += 2 * M_PI;
-        if (delta_phi > M_PI)
-          delta_phi -= 2 * M_PI;
-        pgd_prim_delta_phi_pt_layers0_.at(centrality_class)->Fill(
-            p_sim.Pt(), delta_phi, layers_0);
-        pgd_prim_delta_phi_pt_layers1_.at(centrality_class)->Fill(
-            p_sim.Pt(), delta_phi, layers_1);
-        pgd_prim_delta_phi_pt_layers2_.at(centrality_class)->Fill(
-            p_sim.Pt(), delta_phi, layers_2);
-        pgd_prim_delta_phi_pt_layers3_.at(centrality_class)->Fill(
-            p_sim.Pt(), delta_phi, layers_3);
-        pgd_prim_delta_phi_pt_layers_all_.at(centrality_class)->Fill(
-            p_sim.Pt(), delta_phi, layers_combination);
+        if( -0.05 <= p_sim.Rapidity()-0.74 && p_sim.Rapidity()-0.74 <= 0.05 ) {
+          int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
+          int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
+          int layers_2 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
+          int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
+          int layers_combination = layers_0 * 1e+3 + layers_1 * 1e+2 +
+                                   layers_2 * 1e+1 + layers_3 * 1e+0;
+          auto delta_phi = p_sim.Phi() - psi_rp;
+          if (delta_phi < -M_PI)
+            delta_phi += 2 * M_PI;
+          if (delta_phi > M_PI)
+            delta_phi -= 2 * M_PI;
+          pgd_prim_delta_phi_pt_layers0_.at(centrality_class)
+              ->Fill(p_sim.Pt(), delta_phi, layers_0);
+          pgd_prim_delta_phi_pt_layers1_.at(centrality_class)
+              ->Fill(p_sim.Pt(), delta_phi, layers_1);
+          pgd_prim_delta_phi_pt_layers2_.at(centrality_class)
+              ->Fill(p_sim.Pt(), delta_phi, layers_2);
+          pgd_prim_delta_phi_pt_layers3_.at(centrality_class)
+              ->Fill(p_sim.Pt(), delta_phi, layers_3);
+          pgd_prim_delta_phi_pt_layers_all_.at(centrality_class)
+              ->Fill(p_sim.Pt(), delta_phi, layers_combination);
+        }
       }
     }
 
