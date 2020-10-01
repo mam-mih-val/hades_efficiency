@@ -43,3 +43,6 @@ target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTree
 
 add_executable(efficiency src/efficiency.cc)
 target_link_libraries(efficiency ${ROOT_LIBRARIES})
+
+add_executable(fit_layers src/fit_layers.cc)
+target_link_libraries(fit_layers ${ROOT_LIBRARIES})

@@ -142,7 +142,7 @@ void RecoAcceptance::Exec() {
           int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
           int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
           int layers_2 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
-          int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
+          int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_3));
           int layers_combination = layers_0 * 1e+3 + layers_1 * 1e+2 +
                                    layers_2 * 1e+1 + layers_3 * 1e+0;
           auto delta_phi = p_sim.Phi() - psi_rp;
