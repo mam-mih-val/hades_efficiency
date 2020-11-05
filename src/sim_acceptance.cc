@@ -37,9 +37,9 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
     gen_prim_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi, [rad]; conuts",
-                 150, -0.75, 0.75,
-                 100, 0.0,2.0,
-                 100, -3.5, 3.5));
+                 15, -0.75, 0.75,
+                 20, 0.0,2.0,
+                 32, -3.2, 3.2));
     name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     gen_prim_delta_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",

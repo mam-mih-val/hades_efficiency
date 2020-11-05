@@ -46,3 +46,6 @@ target_link_libraries(efficiency ${ROOT_LIBRARIES})
 
 add_executable(fit_layers src/fit_layers.cc)
 target_link_libraries(fit_layers ${ROOT_LIBRARIES})
+
+add_executable(fit_occupancy src/fit_occupancy.cc)
+target_link_libraries(fit_occupancy ${ROOT_LIBRARIES})

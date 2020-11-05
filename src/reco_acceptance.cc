@@ -82,12 +82,16 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
 
     name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     pid_prim_delta_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 150, -0.75, 0.75, 100, 0.0,2.0,
-                 100, -3.5, 3.5));
+        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
+                 15, -0.75, 0.75,
+                 20, 0.0,2.0,
+                 32, -3.2, 3.2));
     name = "pdg_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     pdg_prim_delta_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 150, -0.75, 0.75,  100, 0.0,2.0,
-                 100, -3.5, 3.5));
+        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
+                 15, -0.75, 0.75,
+                 20, 0.0,2.0,
+                 32, -3.2, 3.2));
 
     name = "pgd_prim_delta_phi_pt_layers0_" + std::to_string(percentile);
     pgd_prim_delta_phi_pt_layers0_.push_back(
@@ -186,18 +190,16 @@ void RecoAcceptance::Exec() {
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_prim_.at(centrality_class)
             ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
-        if (-0.05 < p_reco.Rapidity() - 0.74 &&
-            p_reco.Rapidity() - 0.74 < 0.05) {
-          pid_prim_phi_pt_midrapidity_.at(centrality_class)
-              ->Fill(p_reco.Pt(), p_reco.Phi());
-          auto delta_phi = p_reco.Phi() - psi_rp;
-          if (delta_phi < -M_PI)
-            delta_phi += 2 * M_PI;
-          if (delta_phi > M_PI)
-            delta_phi -= 2 * M_PI;
-          pid_prim_delta_phi_pt_rapidity_.at(centrality_class)
-              ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt(), delta_phi);
-        }
+        pid_prim_phi_pt_midrapidity_.at(centrality_class)
+            ->Fill(p_reco.Pt(), p_reco.Phi());
+        auto delta_phi = p_reco.Phi() - psi_rp;
+        if (delta_phi < -M_PI)
+          delta_phi += 2 * M_PI;
+        if (delta_phi > M_PI)
+          delta_phi -= 2 * M_PI;
+        pid_prim_delta_phi_pt_rapidity_.at(centrality_class)
+            ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt(), delta_phi);
+
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_sec_.at(centrality_class)
@@ -211,17 +213,15 @@ void RecoAcceptance::Exec() {
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pdg_tracks_prim_.at(centrality_class)
             ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
-        if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
-          pdg_prim_phi_pt_midrapidity_.at(centrality_class)
-              ->Fill(p_sim.Pt(), p_sim.Phi());
-          auto delta_phi = p_sim.Phi()-psi_rp;
-          if ( delta_phi < -M_PI )
-            delta_phi+=2*M_PI;
-          if (delta_phi > M_PI)
-            delta_phi-=2*M_PI;
-          pdg_prim_delta_phi_pt_rapidity_.at(centrality_class)
-              ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
-        }
+        pdg_prim_phi_pt_midrapidity_.at(centrality_class)
+            ->Fill(p_sim.Pt(), p_sim.Phi());
+        auto delta_phi = p_sim.Phi()-psi_rp;
+        if ( delta_phi < -M_PI )
+          delta_phi+=2*M_PI;
+        if (delta_phi > M_PI)
+          delta_phi-=2*M_PI;
+        pdg_prim_delta_phi_pt_rapidity_.at(centrality_class)
+            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
       }
     }
     if (s_track.GetPid()!=pid_code_ && r_track.GetPid()==pid_code_ )
