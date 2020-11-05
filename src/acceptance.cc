@@ -39,7 +39,7 @@ int main(int n_args, char** args){
 //                                             HadesUtils::DATA_TYPE::AuAu_1_23AGeV));
   manager.SetOutFileName("out.root");
   manager.Init();
-  manager.Run(1000);
+  manager.Run(-1);
   manager.Finish();
   return 0;
 }
