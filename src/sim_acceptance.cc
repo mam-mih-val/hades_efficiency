@@ -43,9 +43,9 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     gen_prim_delta_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 150, -0.75, 0.75,
-                 100, 0.0,2.0,
-                 100, -3.5, 3.5));
+                 15, -0.75, 0.75,
+                 20, 0.0,2.0,
+                 32, -3.2, 3.2));
   }
 }
 void SimAcceptance::Exec() {
@@ -65,17 +65,15 @@ void SimAcceptance::Exec() {
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
-      if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
-        gen_prim_phi_pt_rapidity_.at(centrality_class)
-            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), p_sim.Phi());
-        auto delta_phi = p_sim.Phi()-psi_rp;
-        if ( delta_phi < -M_PI )
-          delta_phi+=2*M_PI;
-        if (delta_phi > M_PI)
-          delta_phi-=2*M_PI;
-        gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
-            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
-      }
+      gen_prim_phi_pt_rapidity_.at(centrality_class)
+          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), p_sim.Phi());
+      auto delta_phi = p_sim.Phi()-psi_rp;
+      if ( delta_phi < -M_PI )
+        delta_phi+=2*M_PI;
+      if (delta_phi > M_PI)
+        delta_phi-=2*M_PI;
+      gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
+          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
