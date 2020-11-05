@@ -35,12 +35,16 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
                  100, -1.0, 1.0, 100, 0.0,2.0));
 
     name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
-    gen_prim_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
+    gen_prim_phi_pt_rapidity_.push_back(
+        new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi, [rad]; conuts",
+                 150, -0.75, 0.75,
+                 100, 0.0,2.0,
                  100, -3.5, 3.5));
     name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
-    gen_prim_delta_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts", 100, 0.0,2.0,
+    gen_prim_delta_phi_pt_rapidity_.push_back(
+        new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
+                 150, -0.75, 0.75,
+                 100, 0.0,2.0,
                  100, -3.5, 3.5));
   }
 }
@@ -54,7 +58,7 @@ void SimAcceptance::Exec() {
   int n_sim_tracks = sim_tracks_->GetNumberOfChannels();
   for (int i = 0; i < n_sim_tracks; ++i) {
     auto s_track = (sim_tracks_->GetChannel(i));
-    if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) != 14)
+    if (s_track.GetPid() != pid_code_)
       continue;
     float m_sim = s_track.GetMass();
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
@@ -62,15 +66,15 @@ void SimAcceptance::Exec() {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       if( -0.05 < p_sim.Rapidity() - 0.74 && p_sim.Rapidity() - 0.74 < 0.05 ) {
-        gen_prim_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_sim.Pt(), p_sim.Phi());
+        gen_prim_phi_pt_rapidity_.at(centrality_class)
+            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), p_sim.Phi());
         auto delta_phi = p_sim.Phi()-psi_rp;
         if ( delta_phi < -M_PI )
           delta_phi+=2*M_PI;
         if (delta_phi > M_PI)
           delta_phi-=2*M_PI;
-        gen_prim_delta_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_sim.Pt(), delta_phi);
+        gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
+            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
       }
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
@@ -82,8 +86,9 @@ void SimAcceptance::Finish() {
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
-    gen_prim_phi_pt_midrapidity_.at(i)->Write();
-    gen_prim_delta_phi_pt_midrapidity_.at(i)->Write();
+    gen_prim_phi_pt_rapidity_.at(i)->Write();
+    gen_prim_delta_phi_pt_rapidity_.at(i)->Write();
   }
 }
+void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }
 } // namespace AnalysisTree

@@ -25,6 +25,8 @@ public:
   void Init( std::map<std::string, void*>& branch_map ) override;
   void Exec() override;
   void Finish() override;
+  void SetPidCode(int pid_code);
+
 private:
   enum FIELDS{
     HITS_TOF_RPC,
@@ -36,6 +38,9 @@ private:
     LAYERS_1,
     LAYERS_2,
     LAYERS_3,
+    CHI2,
+    DCA_XY,
+    DCA_Z
   };
   EventHeader* reco_header_{nullptr};
   EventHeader* sim_header_{nullptr};
@@ -44,6 +49,7 @@ private:
   HitDetector* meta_hits_{nullptr};
   Matching*reco_sim_matching_{nullptr};
   Matching* mdc_meta_matching_{nullptr};
+  int pid_code_=2212;
 
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
@@ -58,8 +64,8 @@ private:
   std::vector<TH2F*> pid_prim_phi_pt_midrapidity_;
   std::vector<TH2F*> pdg_prim_phi_pt_midrapidity_;
 
-  std::vector<TH2F*> pid_prim_delta_phi_pt_midrapidity_;
-  std::vector<TH2F*> pdg_prim_delta_phi_pt_midrapidity_;
+  std::vector<TH3F*> pid_prim_delta_phi_pt_rapidity_;
+  std::vector<TH3F*> pdg_prim_delta_phi_pt_rapidity_;
 
   std::vector<TH3F*> pgd_prim_delta_phi_pt_layers0_;
   std::vector<TH3F*> pgd_prim_delta_phi_pt_layers1_;

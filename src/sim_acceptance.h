@@ -13,13 +13,16 @@
 #include <AnalysisTree/Cuts.hpp>
 #include <AnalysisTree/Detector.hpp>
 
+#include <TH3F.h>
 #include <centrality.h>
 
 namespace AnalysisTree {
 class SimAcceptance : public FillTask {
+public:
   void Init(std::map<std::string, void *> &branch_map) override;
   void Exec() override;
   void Finish() override;
+  void SetPidCode(int pid_code);
 
 private:
   enum FIELDS {
@@ -31,12 +34,13 @@ private:
   EventHeader *sim_header_{nullptr};
   EventHeader *reco_header_{nullptr};
   Particles *sim_tracks_{nullptr};
+  int pid_code_=2212;
 
   std::map<int, int> fields_id_;
   std::vector<TH2F *> gen_tracks_prim_;
   std::vector<TH2F *> gen_tracks_sec_;
-  std::vector<TH2F *> gen_prim_phi_pt_midrapidity_;
-  std::vector<TH2F *> gen_prim_delta_phi_pt_midrapidity_;
+  std::vector<TH3F*> gen_prim_phi_pt_rapidity_;
+  std::vector<TH3F*> gen_prim_delta_phi_pt_rapidity_;
 };
 } // namespace AnalysisTree
 #endif // EFFICIENCY_SRC_SIM_ACCEPTANCE_H_
