@@ -49,7 +49,7 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     gen_prim_delta_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
                  15, y_axis,
-                 20, pt_axis,
+                 10, pt_axis,
                  16, phi_axis));
   }
 }
