@@ -81,17 +81,24 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                  100, -3.15, 3.15));
 
     name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
+    float y_axis[16];
+    for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
+    float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+    float phi_axis[17];
+    for(int j=0; j<17; ++j){ phi_axis[j]=-3.2f+0.4f* (float) j; }
     pid_prim_delta_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 15, -0.75, 0.75,
-                 20, 0.0,2.0,
-                 32, -3.2, 3.2));
+                 15, y_axis,
+                 20, pt_axis,
+                 16, phi_axis
+                 ));
     name = "pdg_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
     pdg_prim_delta_phi_pt_rapidity_.push_back(
         new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 15, -0.75, 0.75,
-                 20, 0.0,2.0,
-                 32, -3.2, 3.2));
+                 15, y_axis,
+                 20, pt_axis,
+                 16, phi_axis
+                 ));
 
     name = "pgd_prim_delta_phi_pt_layers0_" + std::to_string(percentile);
     pgd_prim_delta_phi_pt_layers0_.push_back(
