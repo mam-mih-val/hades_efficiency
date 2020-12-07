@@ -25,6 +25,6 @@ echo "loading " $ownroot
 source $ownroot
 
 echo "executing $build_dir/acceptance list.txt"
-$build_dir/acceptance list.txt
+$build_dir/acceptance list.txt 211
 
 echo JOB FINISHED!

@@ -52,3 +52,6 @@ target_link_libraries(fit_occupancy ${ROOT_LIBRARIES})
 
 add_executable(equal_bins src/cut_equal_bins.cc)
 target_link_libraries(equal_bins ${ROOT_LIBRARIES})
+
+add_executable(theta_p src/theta_p.cc)
+target_link_libraries(theta_p ${ROOT_LIBRARIES})

@@ -23,43 +23,60 @@ int main(int n, char** args) {
     std::string name = "pdg_prim_delta_phi_pt_midrapidity_" + std::to_string(p);
     pdg_delta_phi_vs_pt_rapidity.emplace_back();
     file->GetObject( name.c_str(), pdg_delta_phi_vs_pt_rapidity.back() );
-    pdg_delta_phi_vs_pt_rapidity.back()->Rebin3D(1, 2, 2);
+//    pdg_delta_phi_vs_pt_rapidity.back()->Rebin3D(1, 2, 2);
     name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(p);
     gen_delta_phi_vs_pt_rapidity.emplace_back();
     file->GetObject(name.c_str(), gen_delta_phi_vs_pt_rapidity.back());
-    gen_delta_phi_vs_pt_rapidity.back()->Rebin3D(1, 2, 2);
+//    gen_delta_phi_vs_pt_rapidity.back()->Rebin3D(1, 2, 2);
     eff_vs_delta_phi_pt_rapidity.emplace_back();
 //    pdg_delta_phi_vs_pt_rapidity.back()->Divide(gen_delta_phi_vs_pt_rapidity.back());
     p+=5;
   }
   p=2;
-  auto file_out = TFile::Open("fit_parameters.root", "RECREATE");
+  auto file_out = TFile::Open("flow.root", "RECREATE");
   file_out->mkdir("fits");
   file_out->cd("/fits");
+  float y_axis[16];
+  for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
+//  float pt_axis[10];
+//  for(int j=0; j<10; ++j){ pt_axis[j]=0.2f* (float) j; }
+  float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
   for( size_t i=0; i<pdg_delta_phi_vs_pt_rapidity.size(); i++ ){
     size_t n_bins_y = pdg_delta_phi_vs_pt_rapidity.at(i)->GetNbinsX();
     size_t n_bins_pt = pdg_delta_phi_vs_pt_rapidity.at(i)->GetNbinsY();
     std::string name_v1 = "v1_y_pT_"+std::to_string(p);
     v1_vs_pt_rapidity.push_back( new TH2F(name_v1.c_str(), ";y;pT;v_{1}",
-                                         15, -0.75, 0.75,
-                                         10, 0.0, 2.0 ) );
+                                         15, y_axis,
+                                         10, pt_axis
+    ) );
     v1_vs_pt_rapidity.back()->GetSumw2();
     std::string name_v2 = "v2_y_pT_"+std::to_string(p);
     v2_vs_pt_rapidity.push_back( new TH2F(name_v2.c_str(), ";y;pT;v_{2}",
-                                         15, -0.75, 0.75,
-                                         10, 0.0, 2.0 ) );
+                                          15, y_axis,
+                                          10, pt_axis
+    ) );
+    std::string name_v0 = "v0_y_pT_"+std::to_string(p);
+    v0_vs_pt_rapidity.push_back( new TH2F(name_v0.c_str(), ";y;pT;v_{0}",
+                                          15, y_axis,
+                                          10, pt_axis
+    ) );
     for( size_t y =1; y <=n_bins_y; ++y){
-      for(size_t pT =1; pT <n_bins_pt; ++pT){
+      for(size_t pT =1; pT<=n_bins_pt; ++pT){
         auto bin_y = pdg_delta_phi_vs_pt_rapidity.at(i)->GetXaxis()->GetBinCenter(y);
         auto bin_pT = pdg_delta_phi_vs_pt_rapidity.at(i)->GetYaxis()->GetBinCenter(pT);
         name_v1 = "v1_y_pT_"+std::to_string(p) + "_"+std::to_string(bin_y)+"_"+std::to_string(bin_pT);
         auto proj_num = pdg_delta_phi_vs_pt_rapidity.at(i)->ProjectionZ(name_v1.c_str(),y, y, pT, pT );
+        proj_num->Sumw2();
+//        proj_num->Scale( 1.0/proj_num->Integral("width") );
         std::string name_gen = name_v1+"_gen";
         auto proj_den = gen_delta_phi_vs_pt_rapidity.at(i)->ProjectionZ(name_gen.c_str(),y, y, pT, pT );
+        proj_den->Sumw2();
         proj_num->Divide(proj_den);
         name_v1 +="_fit";
-        auto fit_func = new TF1(name_v1.c_str(), "[0]*( 1+2*[1]*cos(x)+2*[2]*cos(2*x) )", -3.15, 3.15 );
-        proj_num->Fit(fit_func);
+        auto fit_func = new TF1(name_v1.c_str(), "[0]*1+2*[1]*cos(x)+2*[2]*cos(2*x)", -3.15, 3.15 );
+        proj_num->Fit(fit_func, "E");
+        v0_vs_pt_rapidity.back()->SetBinContent( y, pT, fit_func->GetParameter(0) );
+        v0_vs_pt_rapidity.back()->SetBinError( y, pT, fit_func->GetParError(0) );
         v1_vs_pt_rapidity.back()->SetBinContent( y, pT, fit_func->GetParameter(1) );
         v1_vs_pt_rapidity.back()->SetBinError( y, pT, fit_func->GetParError(1) );
         v2_vs_pt_rapidity.back()->SetBinContent( y, pT, fit_func->GetParameter(2) );
@@ -70,6 +87,8 @@ int main(int n, char** args) {
     p+=5;
   }
   file_out->cd("/");
+  for( auto histo : v0_vs_pt_rapidity )
+    histo->Write();
   for( auto histo : v1_vs_pt_rapidity )
     histo->Write();
   for( auto histo : v2_vs_pt_rapidity )
