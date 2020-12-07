@@ -79,7 +79,7 @@ int main(int n, char** args){
     pdg_prim_pt_phi->Divide(gen_prim_pt_phi);
 //    pdg_prim_pt_delta_phi->Rebin2D(5, 4);
 //    gen_prim_pt_delta_phi->Rebin2D(5, 4);
-    pdg_prim_pt_delta_phi->Divide(gen_prim_pt_delta_phi);
+//    pdg_prim_pt_delta_phi->Divide(gen_prim_pt_delta_phi);
 
     efficiency.emplace_back(pdg_prim);
     contamination.emplace_back(pdg_sec);
@@ -89,7 +89,7 @@ int main(int n, char** args){
     percentile+=5;
   }
 
-  auto* file_out = TFile::Open( "efficiency_out_new.root", "recreate" );
+  auto* file_out = TFile::Open( "efficiency_pi_plus.root", "recreate" );
   file_out->cd();
   percentile=2;
   int i=0;
@@ -104,10 +104,10 @@ int main(int n, char** args){
     mismatch.at(i)->Write(name.data());
 
     name = "pt_phi_eff_midrapidity_"+std::to_string(percentile);
-    midrapidity_pt_phi_efficiency.at(i)->Write(name.data());
+//    midrapidity_pt_phi_efficiency.at(i)->Write(name.data());
 
     name = "pt_delta_phi_eff_midrapidity_"+std::to_string(percentile);
-    midrapidity_pt_delta_phi_efficiency.at(i)->Write(name.data());
+//    midrapidity_pt_delta_phi_efficiency.at(i)->Write(name.data());
 
     i++;
     percentile+=5;
