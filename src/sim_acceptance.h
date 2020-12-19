@@ -25,6 +25,21 @@ public:
   void SetPidCode(int pid_code);
 
 private:
+  size_t WhatSector( double phi ){
+    if( 0.0 < phi && phi < M_PI/3.0 )
+      return 0;
+    if( M_PI/3.0 < phi && phi < 2.0*M_PI/3.0 )
+      return 1;
+    if( 2*M_PI/3.0 < phi && phi < M_PI )
+      return 2;
+    if( -M_PI < phi && phi < -2*M_PI/3.0 )
+      return 3;
+    if( -2*M_PI/3.0 < phi && phi < -M_PI/3.0 )
+      return 4;
+    if( -M_PI/3.0 < phi && phi < 0.0 )
+      return 5;
+    return -1;
+  }
   enum FIELDS {
     HITS_TOF_RPC,
     SIM_GEANT_PID,
@@ -34,6 +49,7 @@ private:
   EventHeader *sim_header_{nullptr};
   EventHeader *reco_header_{nullptr};
   Particles *sim_tracks_{nullptr};
+  Particles *reco_tracks_{nullptr};
   int pid_code_=2212;
 
   std::map<int, int> fields_id_;
@@ -41,6 +57,7 @@ private:
   std::vector<TH2F *> gen_tracks_sec_;
   std::vector<TH3F*> gen_prim_phi_pt_rapidity_;
   std::vector<TH3F*> gen_prim_delta_phi_pt_rapidity_;
+  TH3F* entries_vs_pT_y_n_tracks_sector_;
 };
 } // namespace AnalysisTree
 #endif // EFFICIENCY_SRC_SIM_ACCEPTANCE_H_

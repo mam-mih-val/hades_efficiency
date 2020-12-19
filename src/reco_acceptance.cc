@@ -127,6 +127,14 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   }
   momentum_err_ = new TProfile("momentum_err", ";p, [GeV/c]; relative error",
                                100, 0.0, 3.5);
+  float y_axis[16];
+  for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
+  float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+  entries_vs_pT_y_n_tracks_sector_ = new TH3F( "pdg_prim_pT_y_n_tracks_sector",
+                                              ";y;p_{T} [GeV/c];N tracks in sector",
+                                              100, -1, 1.0,
+                                              100, 0.0, 2.0,
+                                              30, 0.0, 30.0);
 }
 
 void RecoAcceptance::Exec() {
@@ -138,7 +146,13 @@ void RecoAcceptance::Exec() {
     return;
   }
   std::vector<int> sim_matches;
+  std::vector n_tracks_sectors{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
+  for( int i = 0; i < n_reco_tracks; ++i ){
+    auto r_track = reco_tracks_->GetChannel(i);
+    auto sector = WhatSector( r_track.GetPhi() );
+    n_tracks_sectors.at(sector)++;
+  }
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
     if( sim_id == AnalysisTree::UndefValueInt )
@@ -162,10 +176,10 @@ void RecoAcceptance::Exec() {
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
-
-
     if( s_track.GetPid()==pid_code_ ){
       if( s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) ){
+        auto sector = WhatSector(p_sim.Phi());
+        entries_vs_pT_y_n_tracks_sector_->Fill( p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector) );
         if( -0.05 <= p_sim.Rapidity()-0.74 && p_sim.Rapidity()-0.74 <= 0.05 ) {
           int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
           int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
@@ -240,6 +254,7 @@ void RecoAcceptance::Exec() {
 
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
+  entries_vs_pT_y_n_tracks_sector_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

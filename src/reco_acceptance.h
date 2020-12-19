@@ -28,6 +28,21 @@ public:
   void SetPidCode(int pid_code);
 
 private:
+  size_t WhatSector( double phi ){
+    if( 0.0 < phi && phi < M_PI/3.0 )
+      return 0;
+    if( M_PI/3.0 < phi && phi < 2.0*M_PI/3.0 )
+      return 1;
+    if( 2*M_PI/3.0 < phi && phi < M_PI )
+      return 2;
+    if( -M_PI < phi && phi < -2*M_PI/3.0 )
+      return 3;
+    if( -2*M_PI/3.0 < phi && phi < -M_PI/3.0 )
+      return 4;
+    if( -M_PI/3.0 < phi && phi < 0.0 )
+      return 5;
+    return -1;
+  }
   enum FIELDS{
     HITS_TOF_RPC,
     SIM_GEANT_PID,
@@ -73,6 +88,7 @@ private:
   std::vector<TH3F*> pgd_prim_delta_phi_pt_layers3_;
 
   std::vector<TH3F*> pgd_prim_delta_phi_pt_layers_all_;
+  TH3F* entries_vs_pT_y_n_tracks_sector_;
 };
 } // namespace AnalysisTree
 #endif // QUALITY_ASSURANCE_SRC_TREE_READER_H_

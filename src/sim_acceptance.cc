@@ -9,6 +9,7 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   sim_header_ = static_cast<EventHeader *>(branch_map.at("sim_header"));
   reco_header_ = static_cast<EventHeader *>(branch_map.at("event_header"));
   sim_tracks_ = static_cast<Particles *>(branch_map.at("sim_tracks"));
+  reco_tracks_ = static_cast<Particles *>(branch_map.at("mdc_vtx_tracks"));
   auto sim_event_config = config_->GetBranchConfig("sim_header");
   auto reco_event_config = config_->GetBranchConfig("event_header");
   auto sim_tracks_config = config_->GetBranchConfig("sim_tracks");
@@ -52,6 +53,11 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
                  10, pt_axis,
                  16, phi_axis));
   }
+  entries_vs_pT_y_n_tracks_sector_ = new TH3F( "gen_prim_pT_y_n_tracks_sector",
+                                               ";y;p_{T} [GeV/c];N tracks in sector",
+                                               100, -1, 1.0,
+                                               100, 0.0, 2.0,
+                                               30, 0.0, 30.0);
 }
 void SimAcceptance::Exec() {
   auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
@@ -61,6 +67,13 @@ void SimAcceptance::Exec() {
     return;
   }
   int n_sim_tracks = sim_tracks_->GetNumberOfChannels();
+  std::vector n_tracks_sectors{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
+  for( int i = 0; i < n_reco_tracks; ++i ){
+    auto r_track = reco_tracks_->GetChannel(i);
+    auto sector = WhatSector( r_track.GetPhi() );
+    n_tracks_sectors.at(sector)++;
+  }
   for (int i = 0; i < n_sim_tracks; ++i) {
     auto s_track = (sim_tracks_->GetChannel(i));
     if (s_track.GetPid() != pid_code_)
@@ -79,6 +92,8 @@ void SimAcceptance::Exec() {
         delta_phi-=2*M_PI;
       gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
+      auto sector = WhatSector(p_sim.Phi());
+      entries_vs_pT_y_n_tracks_sector_->Fill( p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector) );
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
@@ -86,6 +101,7 @@ void SimAcceptance::Exec() {
   }
 }
 void SimAcceptance::Finish() {
+  entries_vs_pT_y_n_tracks_sector_->Write();
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
