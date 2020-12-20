@@ -151,7 +151,9 @@ void RecoAcceptance::Exec() {
   for( int i = 0; i < n_reco_tracks; ++i ){
     auto r_track = reco_tracks_->GetChannel(i);
     auto sector = WhatSector( r_track.GetPhi() );
-    n_tracks_sectors.at(sector)++;
+    try {
+      n_tracks_sectors.at(sector)++;
+    } catch (std::exception&) {}
   }
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
@@ -179,7 +181,10 @@ void RecoAcceptance::Exec() {
     if( s_track.GetPid()==pid_code_ ){
       if( s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) ){
         auto sector = WhatSector(p_sim.Phi());
-        entries_vs_pT_y_n_tracks_sector_->Fill( p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector) );
+        try {
+          entries_vs_pT_y_n_tracks_sector_->Fill(
+              p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector));
+        }catch(std::exception&){}
         if( -0.05 <= p_sim.Rapidity()-0.74 && p_sim.Rapidity()-0.74 <= 0.05 ) {
           int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
           int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));

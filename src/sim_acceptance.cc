@@ -72,7 +72,9 @@ void SimAcceptance::Exec() {
   for( int i = 0; i < n_reco_tracks; ++i ){
     auto r_track = reco_tracks_->GetChannel(i);
     auto sector = WhatSector( r_track.GetPhi() );
-    n_tracks_sectors.at(sector)++;
+    try {
+      n_tracks_sectors.at(sector)++;
+    } catch (std::exception&) {}
   }
   for (int i = 0; i < n_sim_tracks; ++i) {
     auto s_track = (sim_tracks_->GetChannel(i));
@@ -93,7 +95,10 @@ void SimAcceptance::Exec() {
       gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
       auto sector = WhatSector(p_sim.Phi());
-      entries_vs_pT_y_n_tracks_sector_->Fill( p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector) );
+      try {
+        entries_vs_pT_y_n_tracks_sector_->Fill(
+            p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector));
+      } catch (std::exception&) {}
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
