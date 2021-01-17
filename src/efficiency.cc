@@ -4,6 +4,7 @@
 
 #include <TFile.h>
 #include <TH2F.h>
+#include <TH3F.h>
 #include <iostream>
 int main(int n, char** args){
   if( n < 1 ){
@@ -26,10 +27,12 @@ int main(int n, char** args){
   TH2F* gen_prim;
   TH2F* gen_prim_pt_phi;
   TH2F* gen_prim_pt_delta_phi;
+  TH3F* gen_prim_pt_y_n_tracks;
   TH2F* gen_sec;
   TH2F* pdg_prim;
   TH2F* pdg_prim_pt_phi;
   TH2F* pdg_prim_pt_delta_phi;
+  TH3F* pdg_prim_pt_y_n_tracks;
   TH2F* pdg_sec;
   TH2F* pid_prim;
   TH2F* pid_sec;
@@ -40,11 +43,13 @@ int main(int n, char** args){
   while( percentile < 40 ){
     std::string name = "gen_tracks_prim_" + std::to_string(percentile);
     file_in->GetObject( name.data(), gen_prim);
+    gen_prim->Sumw2();
     name = "gen_tracks_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), gen_sec);
 
     name = "pdg_tracks_prim_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pdg_prim);
+    pdg_prim->Sumw2();
     name = "pdg_tracks_sec_" + std::to_string(percentile);
     file_in->GetObject( name.data(), pdg_sec);
 
@@ -88,9 +93,13 @@ int main(int n, char** args){
     midrapidity_pt_delta_phi_efficiency.emplace_back(pdg_prim_pt_delta_phi);
     percentile+=5;
   }
+  file_in->GetObject( "gen_prim_pT_y_n_tracks_sector", gen_prim_pt_y_n_tracks );
+  file_in->GetObject( "pdg_prim_pT_y_n_tracks_sector", pdg_prim_pt_y_n_tracks );
 
+  pdg_prim_pt_y_n_tracks->Divide( gen_prim_pt_y_n_tracks );
   auto* file_out = TFile::Open( "efficiency_protons.root", "recreate" );
   file_out->cd();
+  pdg_prim_pt_y_n_tracks->Write("efficiency_pT_y_n_tacks_sector");
   percentile=2;
   int i=0;
   while (percentile<40){

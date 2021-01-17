@@ -130,11 +130,13 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   float y_axis[16];
   for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
   float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+  float n_tracks_axis[31];
+  for(int j=0; j<31; ++j){ n_tracks_axis[j]=1.0f* (float) j; }
   entries_vs_pT_y_n_tracks_sector_ = new TH3F( "pdg_prim_pT_y_n_tracks_sector",
                                               ";y;p_{T} [GeV/c];N tracks in sector",
-                                              100, -1, 1.0,
-                                              100, 0.0, 2.0,
-                                              30, 0.0, 30.0);
+                                               15, y_axis,
+                                               10, pt_axis,
+                                               30, n_tracks_axis);
 }
 
 void RecoAcceptance::Exec() {
