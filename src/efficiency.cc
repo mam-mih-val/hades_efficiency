@@ -96,6 +96,8 @@ int main(int n, char** args){
   file_in->GetObject( "gen_prim_pT_y_n_tracks_sector", gen_prim_pt_y_n_tracks );
   file_in->GetObject( "pdg_prim_pT_y_n_tracks_sector", pdg_prim_pt_y_n_tracks );
 
+  pdg_prim_pt_y_n_tracks->Sumw2();
+  gen_prim_pt_y_n_tracks->Sumw2();
   pdg_prim_pt_y_n_tracks->Divide( gen_prim_pt_y_n_tracks );
   auto* file_out = TFile::Open( "efficiency_protons.root", "recreate" );
   file_out->cd();

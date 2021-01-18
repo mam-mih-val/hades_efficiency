@@ -10,15 +10,14 @@ partition=main
 time=8:00:00
 build_dir=/lustre/nyx/hades/user/mmamaev/hades_efficiency/build
 
-lists_dir=${output_dir}/lists
+lists_dir=${output_dir}/lists/
 log_dir=${output_dir}/log
 
 mkdir -p $output_dir
 mkdir -p $log_dir
 mkdir -p $lists_dir
 
-csplit -s -f "$lists_dir/" -b %1d.list "$file_list" -k 5 {*}
-rm $lists_dir/0.list
+split -l 5 -d -a 3 --additional-suffix=.list "$file_list" $lists_dir
 
 n_runs=$(ls $lists_dir/*.list | wc -l)
 

@@ -47,10 +47,13 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
 
   for (int i = 0; i < 8; ++i) {
     int percentile = 2 + i * 5;
+    float y_axis[16];
+    for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
+    float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
     std::string name = "pdg_tracks_prim_" + std::to_string(percentile);
     pdg_tracks_prim_.push_back(new TH2F(name.data(),
                                         "; y-y_{beam};p_{T}, [GeV/c]; conuts",
-                                        100, -1.0, 1.0, 100, 0.0, 2.0 ));
+                                        15, y_axis, 10, pt_axis ));
     name = "pdg_tracks_sec_" + std::to_string(percentile);
     pdg_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
@@ -59,7 +62,7 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     name = "pid_tracks_prim_" + std::to_string(percentile);
     pid_tracks_prim_.push_back(new TH2F(name.data(),
                                         ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                        100, -1.0, 1.0, 100, 0.0, 2.0 ));
+                                        15, y_axis, 10, pt_axis ));
     name = "pid_tracks_sec_" + std::to_string(percentile);
     pid_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
@@ -81,9 +84,7 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                  100, -3.15, 3.15));
 
     name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
-    float y_axis[16];
-    for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
-    float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+
     float phi_axis[17];
     for(int j=0; j<17; ++j){ phi_axis[j]=-3.2f+0.4f* (float) j; }
     pid_prim_delta_phi_pt_rapidity_.push_back(
@@ -137,6 +138,7 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                                                15, y_axis,
                                                10, pt_axis,
                                                30, n_tracks_axis);
+  n_tr_sector_vs_centrality_ = new TProfile("det_tracks_sector_vs_centrality", ";tracks in sector; centrality (%)", 8, 0.0, 40.0);
 }
 
 void RecoAcceptance::Exec() {
@@ -157,6 +159,9 @@ void RecoAcceptance::Exec() {
       n_tracks_sectors.at(sector)++;
     } catch (std::exception&) {}
   }
+  auto centrality = 2.5 + centrality_class*5.0;
+  for( auto sector : n_tracks_sectors )
+    n_tr_sector_vs_centrality_->Fill(centrality, sector);
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
     if( sim_id == AnalysisTree::UndefValueInt )
@@ -262,6 +267,7 @@ void RecoAcceptance::Exec() {
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
   entries_vs_pT_y_n_tracks_sector_->Write();
+  n_tr_sector_vs_centrality_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();
