@@ -89,6 +89,7 @@ private:
 
   std::vector<TH3F*> pgd_prim_delta_phi_pt_layers_all_;
   TH3F* entries_vs_pT_y_n_tracks_sector_;
+  TProfile* n_tr_sector_vs_centrality_;
 };
 } // namespace AnalysisTree
 #endif // QUALITY_ASSURANCE_SRC_TREE_READER_H_
