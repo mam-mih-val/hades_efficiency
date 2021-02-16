@@ -24,7 +24,7 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
-  for (int i = 0; i < 8; ++i) {
+  for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
     for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
@@ -37,50 +37,16 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     gen_tracks_sec_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
                  100, -1.0, 1.0, 100, 0.0,2.0));
-
-    name = "gen_prim_phi_pt_midrapidity_" + std::to_string(percentile);
-    gen_prim_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi, [rad]; conuts",
-                 15, -0.75, 0.75,
-                 20, 0.0,2.0,
-                 32, -3.2, 3.2));
-    float phi_axis[17];
-    for(int j=0; j<17; ++j){ phi_axis[j]=-3.2f+0.4f* (float) j; }
-    name = "gen_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
-    gen_prim_delta_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 15, y_axis,
-                 10, pt_axis,
-                 16, phi_axis));
   }
-  float y_axis[16];
-  for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
-  float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
-  float n_tracks_axis[31];
-  for(int j=0; j<31; ++j){ n_tracks_axis[j]=1.0f* (float) j; }
-  entries_vs_pT_y_n_tracks_sector_ = new TH3F( "gen_prim_pT_y_n_tracks_sector",
-                                               ";y;p_{T} [GeV/c];N tracks in sector",
-                                               15, y_axis,
-                                               10, pt_axis,
-                                               30, n_tracks_axis);
 }
 void SimAcceptance::Exec() {
-  auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
-  int centrality_class = (int) HadesUtils::Centrality::GetClass(hits_tof_rpc, HadesUtils::DATA_TYPE::AuAu_1_23AGeV);
-  auto psi_rp = sim_header_->GetField<float>( fields_id_.at(PSI_RP) );
-  if (centrality_class > 7) {
+  auto centrality = reco_header_->GetField<float>(
+      config_->GetBranchConfig("event_header").GetFieldId("selected_tof_rpc_hits_centrality") );
+  auto centrality_class = (size_t) ( (centrality-2.5)/5.0 );
+  if (centrality_class > 11) {
     return;
   }
   int n_sim_tracks = sim_tracks_->GetNumberOfChannels();
-  std::vector n_tracks_sectors{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
-  for( int i = 0; i < n_reco_tracks; ++i ){
-    auto r_track = reco_tracks_->GetChannel(i);
-    auto sector = WhatSector( r_track.GetPhi() );
-    try {
-      n_tracks_sectors.at(sector)++;
-    } catch (std::exception&) {}
-  }
   for (int i = 0; i < n_sim_tracks; ++i) {
     auto s_track = (sim_tracks_->GetChannel(i));
     if (s_track.GetPid() != pid_code_)
@@ -90,20 +56,6 @@ void SimAcceptance::Exec() {
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
-      gen_prim_phi_pt_rapidity_.at(centrality_class)
-          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), p_sim.Phi());
-      auto delta_phi = p_sim.Phi()-psi_rp;
-      if ( delta_phi < -M_PI )
-        delta_phi+=2*M_PI;
-      if (delta_phi > M_PI)
-        delta_phi-=2*M_PI;
-      gen_prim_delta_phi_pt_rapidity_.at(centrality_class)
-          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
-      auto sector = WhatSector(p_sim.Phi());
-      try {
-        entries_vs_pT_y_n_tracks_sector_->Fill(
-            p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector));
-      } catch (std::exception&) {}
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
@@ -111,12 +63,9 @@ void SimAcceptance::Exec() {
   }
 }
 void SimAcceptance::Finish() {
-  entries_vs_pT_y_n_tracks_sector_->Write();
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
-    gen_prim_phi_pt_rapidity_.at(i)->Write();
-    gen_prim_delta_phi_pt_rapidity_.at(i)->Write();
   }
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }
