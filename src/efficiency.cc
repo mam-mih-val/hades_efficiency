@@ -5,7 +5,9 @@
 #include <TFile.h>
 #include <TH2F.h>
 #include <TH3F.h>
+#include <TProfile.h>
 #include <iostream>
+
 int main(int n, char** args){
   if( n < 1 ){
     std::cout << "Aim not specified" << std::endl;
@@ -38,7 +40,8 @@ int main(int n, char** args){
   TH2F* pid_sec;
   TH2F* pid_reco;
   TH2F* pid_mismatch;
-
+  TProfile* n_tracks_sector;
+  file_in->GetObject( "det_tracks_sector_vs_centrality", n_tracks_sector );
   int percentile = 2;
   while( percentile < 40 ){
     std::string name = "gen_tracks_prim_" + std::to_string(percentile);
@@ -102,6 +105,7 @@ int main(int n, char** args){
   auto* file_out = TFile::Open( "efficiency_protons.root", "recreate" );
   file_out->cd();
   pdg_prim_pt_y_n_tracks->Write("efficiency_pT_y_n_tacks_sector");
+//  n_tracks_sector->Write();
   percentile=2;
   int i=0;
   while (percentile<40){

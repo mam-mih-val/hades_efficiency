@@ -45,7 +45,7 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
-  for (int i = 0; i < 8; ++i) {
+  for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
     for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
@@ -74,93 +74,65 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     pid_reco_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -1.0, 1.0, 100, 0.0,2.0));
 
-    name = "pid_prim_phi_pt_midrapidity_" + std::to_string(percentile);
-    pid_prim_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
-    name = "pdg_prim_phi_pt_midrapidity_" + std::to_string(percentile);
-    pdg_prim_phi_pt_midrapidity_.push_back(
-        new TH2F(name.data(), ";p_{T}, [GeV/c]; #phi, [rad]; conuts", 100, 0.0,2.0,
-                 100, -3.15, 3.15));
-
-    name = "pid_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
-
-    float phi_axis[17];
-    for(int j=0; j<17; ++j){ phi_axis[j]=-3.2f+0.4f* (float) j; }
-    pid_prim_delta_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 15, y_axis,
-                 10, pt_axis,
-                 16, phi_axis
-                 ));
-    name = "pdg_prim_delta_phi_pt_midrapidity_" + std::to_string(percentile);
-    pdg_prim_delta_phi_pt_rapidity_.push_back(
-        new TH3F(name.data(), ";y_{cm};p_{T} [GeV/c]; #phi-#Psi_{RP}, [rad]; conuts",
-                 15, y_axis,
-                 10, pt_axis,
-                 16, phi_axis
-                 ));
-
-    name = "pgd_prim_delta_phi_pt_layers0_" + std::to_string(percentile);
-    pgd_prim_delta_phi_pt_layers0_.push_back(
-        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 0 station; conuts", 16, 0.0, 1.6,
-                 35, -3.5, 3.5, 7, 0.0, 7.0));
-
-    name = "pgd_prim_delta_phi_pt_layers1_" + std::to_string(percentile);
-    pgd_prim_delta_phi_pt_layers1_.push_back(
-        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 1 station; conuts", 16, 0.0, 1.6,
-                 35, -3.5, 3.5, 7, 0.0, 7.0));
-
-    name = "pgd_prim_delta_phi_pt_layers2_" + std::to_string(percentile);
-    pgd_prim_delta_phi_pt_layers2_.push_back(
-        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 2 station; conuts", 16, 0.0, 1.6,
-                 35, -3.5, 3.5, 7, 0.0, 7.0));
-
-    name = "pgd_prim_delta_phi_pt_layers3_" + std::to_string(percentile);
-    pgd_prim_delta_phi_pt_layers3_.push_back(
-        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in 3 station; conuts", 16, 0.0, 1.6,
-                 35, -3.5, 3.5, 7, 0.0, 7.0));
-
-    name = "pgd_prim_delta_phi_pt_layers_all_" + std::to_string(percentile);
-    pgd_prim_delta_phi_pt_layers_all_.push_back(
-        new TH3F(name.data(), ";p_{T}, [GeV/c]; #phi-#Psi_{RP}, [rad]; layers in all stations; conuts", 16, 0.0, 1.6,
-                 35, -3.5, 3.5, 6667, 0.0, 6667.0));
+    name = "n_tracks_in_sector_" + std::to_string(percentile);
+    n_tracks_in_sector_.push_back( new TH1F( name.c_str(), ";N_{tr}", 30, 0, 30 ) );
   }
   momentum_err_ = new TProfile("momentum_err", ";p, [GeV/c]; relative error",
                                100, 0.0, 3.5);
-  float y_axis[16];
-  for(int j=0; j<16; ++j){ y_axis[j]=-0.75f+0.1f* (float) j; }
-  float pt_axis[]={0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
-  float n_tracks_axis[31];
-  for(int j=0; j<31; ++j){ n_tracks_axis[j]=1.0f* (float) j; }
-  entries_vs_pT_y_n_tracks_sector_ = new TH3F( "pdg_prim_pT_y_n_tracks_sector",
-                                              ";y;p_{T} [GeV/c];N tracks in sector",
-                                               15, y_axis,
-                                               10, pt_axis,
-                                               30, n_tracks_axis);
-  n_tr_sector_vs_centrality_ = new TProfile("det_tracks_sector_vs_centrality", ";tracks in sector; centrality (%)", 8, 0.0, 40.0);
+  n_tr_sector_vs_centrality_ = new TProfile("det_tracks_sector_vs_centrality", ";tracks in sector; centrality (%)", 12, 0.0, 60.0);
 }
 
+std::array<int, 6> RecoAcceptance::CalcRecoSectorsOccupancy(int pid){
+  std::array<int, 6> sectors_occupancy{};
+  for( auto& n : sectors_occupancy )
+    n=0;
+  for (int i_track = 0; i_track < reco_tracks_->GetNumberOfChannels(); ++i_track) {
+    auto track = reco_tracks_->GetChannel(i_track);
+    auto phi = track.GetPhi();
+    auto sector = WhatSector(phi);
+    auto pdg = track.GetPid();
+    if( pid != -1 && pid != pdg )
+      continue;
+    try {
+      sectors_occupancy.at(sector) += 1;
+    } catch (std::out_of_range&) {}
+  }
+  return sectors_occupancy;
+}
+
+std::array<int, 6> RecoAcceptance::CalcSimSectorsOccupancy(int pid){
+  std::array<int, 6> sectors_occupancy{};
+  for( auto& n : sectors_occupancy )
+    n=0;
+  for (int i_track = 0; i_track < sim_tracks_->GetNumberOfChannels(); ++i_track) {
+    auto track = sim_tracks_->GetChannel(i_track);
+    auto phi = track.GetPhi();
+    auto sector = WhatSector(phi);
+    auto pdg = track.GetPid();
+    if( pid != -1 && pid != pdg )
+      continue;
+    try {
+      sectors_occupancy.at(sector) += 1;
+    } catch (std::out_of_range&) {}
+  }
+  return sectors_occupancy;
+}
+
+
+
 void RecoAcceptance::Exec() {
-  auto hits_tof_rpc = reco_header_->GetField<int>(fields_id_.at(HITS_TOF_RPC));
-  auto psi_rp = sim_header_->GetField<float>( fields_id_.at(PSI_RP) );
-  int centrality_class = (int)HadesUtils::Centrality::GetClass(
-      hits_tof_rpc, HadesUtils::DATA_TYPE::AuAu_1_23AGeV);
-  if (centrality_class > 7) {
+  auto reco_occupancy = CalcRecoSectorsOccupancy();
+  auto centrality = reco_header_->GetField<float>(
+      config_->GetBranchConfig("event_header").GetFieldId("selected_tof_rpc_hits_centrality") );
+  auto centrality_class = (size_t) ( (centrality-2.5)/5.0 );
+  if (centrality_class > 11)
     return;
+  for( size_t i=0; i<6; ++i ){
+    n_tracks_in_sector_.at(centrality_class)->Fill( reco_occupancy.at(i) );
   }
   std::vector<int> sim_matches;
-  std::vector n_tracks_sectors{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
-  for( int i = 0; i < n_reco_tracks; ++i ){
-    auto r_track = reco_tracks_->GetChannel(i);
-    auto sector = WhatSector( r_track.GetPhi() );
-    try {
-      n_tracks_sectors.at(sector)++;
-    } catch (std::exception&) {}
-  }
-  auto centrality = 2.5 + centrality_class*5.0;
-  for( auto sector : n_tracks_sectors )
+  for( auto sector : reco_occupancy )
     n_tr_sector_vs_centrality_->Fill(centrality, sector);
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
@@ -185,59 +157,19 @@ void RecoAcceptance::Exec() {
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
-    if( s_track.GetPid()==pid_code_ ){
-      if( s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)) ){
-        auto sector = WhatSector(p_sim.Phi());
-        try {
-          entries_vs_pT_y_n_tracks_sector_->Fill(
-              p_sim.Rapidity() - 0.74, p_sim.Pt(), n_tracks_sectors.at(sector));
-        }catch(std::exception&){}
-        if( -0.05 <= p_sim.Rapidity()-0.74 && p_sim.Rapidity()-0.74 <= 0.05 ) {
-          int layers_0 = r_track.GetField<int>(fields_id_.at(LAYERS_0));
-          int layers_1 = r_track.GetField<int>(fields_id_.at(LAYERS_1));
-          int layers_2 = r_track.GetField<int>(fields_id_.at(LAYERS_2));
-          int layers_3 = r_track.GetField<int>(fields_id_.at(LAYERS_3));
-          int layers_combination = layers_0 * 1e+3 + layers_1 * 1e+2 +
-                                   layers_2 * 1e+1 + layers_3 * 1e+0;
-          auto delta_phi = p_sim.Phi() - psi_rp;
-          if (delta_phi < -M_PI)
-            delta_phi += 2 * M_PI;
-          if (delta_phi > M_PI)
-            delta_phi -= 2 * M_PI;
-          pgd_prim_delta_phi_pt_layers0_.at(centrality_class)
-              ->Fill(p_sim.Pt(), delta_phi, layers_0);
-          pgd_prim_delta_phi_pt_layers1_.at(centrality_class)
-              ->Fill(p_sim.Pt(), delta_phi, layers_1);
-          pgd_prim_delta_phi_pt_layers2_.at(centrality_class)
-              ->Fill(p_sim.Pt(), delta_phi, layers_2);
-          pgd_prim_delta_phi_pt_layers3_.at(centrality_class)
-              ->Fill(p_sim.Pt(), delta_phi, layers_3);
-          pgd_prim_delta_phi_pt_layers_all_.at(centrality_class)
-              ->Fill(p_sim.Pt(), delta_phi, layers_combination);
-        }
-      }
-    }
-
     if( r_track.GetPid()==pid_code_ ){
       pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_prim_.at(centrality_class)
             ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
-        pid_prim_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_reco.Pt(), p_reco.Phi());
-        auto delta_phi = p_reco.Phi() - psi_rp;
-        if (delta_phi < -M_PI)
-          delta_phi += 2 * M_PI;
-        if (delta_phi > M_PI)
-          delta_phi -= 2 * M_PI;
-        pid_prim_delta_phi_pt_rapidity_.at(centrality_class)
-            ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt(), delta_phi);
-
+        if( s_track.GetPid() == pid_code_ )
+          pdg_tracks_prim_.at(centrality_class)
+              ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_sec_.at(centrality_class)
             ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
-        if (s_track.GetField<int>(fields_id_.at(SIM_GEANT_PID)) == 14)
+        if (s_track.GetPid() == pid_code_)
           pdg_tracks_sec_.at(centrality_class)
               ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       }
@@ -246,15 +178,6 @@ void RecoAcceptance::Exec() {
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pdg_tracks_prim_.at(centrality_class)
             ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
-        pdg_prim_phi_pt_midrapidity_.at(centrality_class)
-            ->Fill(p_sim.Pt(), p_sim.Phi());
-        auto delta_phi = p_sim.Phi()-psi_rp;
-        if ( delta_phi < -M_PI )
-          delta_phi+=2*M_PI;
-        if (delta_phi > M_PI)
-          delta_phi-=2*M_PI;
-        pdg_prim_delta_phi_pt_rapidity_.at(centrality_class)
-            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt(), delta_phi);
       }
     }
     if (s_track.GetPid()!=pid_code_ && r_track.GetPid()==pid_code_ )
@@ -266,12 +189,10 @@ void RecoAcceptance::Exec() {
 
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
-  entries_vs_pT_y_n_tracks_sector_->Write();
   n_tr_sector_vs_centrality_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();
-
 
     pid_tracks_prim_.at(i)->Write();
     pid_tracks_sec_.at(i)->Write();
@@ -279,18 +200,7 @@ void RecoAcceptance::Finish() {
 
     pid_tracks_mismatch_.at(i)->Write();
 
-    pid_prim_phi_pt_midrapidity_.at(i)->Write();
-    pdg_prim_phi_pt_midrapidity_.at(i)->Write();
-
-    pid_prim_delta_phi_pt_rapidity_.at(i)->Write();
-    pdg_prim_delta_phi_pt_rapidity_.at(i)->Write();
-
-    pgd_prim_delta_phi_pt_layers0_.at(i)->Write();
-    pgd_prim_delta_phi_pt_layers1_.at(i)->Write();
-    pgd_prim_delta_phi_pt_layers2_.at(i)->Write();
-    pgd_prim_delta_phi_pt_layers3_.at(i)->Write();
-
-    pgd_prim_delta_phi_pt_layers_all_.at(i)->Write();
+    n_tracks_in_sector_.at(i)->Write();
   }
 }
 void RecoAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }

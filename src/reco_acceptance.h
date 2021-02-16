@@ -28,6 +28,8 @@ public:
   void SetPidCode(int pid_code);
 
 private:
+  std::array<int, 6> CalcRecoSectorsOccupancy(int pid=-1);
+  std::array<int, 6> CalcSimSectorsOccupancy(int pid=-1);
   size_t WhatSector( double phi ){
     if( 0.0 < phi && phi < M_PI/3.0 )
       return 0;
@@ -69,6 +71,8 @@ private:
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
 
+  std::vector<TH1F*> n_tracks_in_sector_;
+
   std::vector<TH2F*> pdg_tracks_prim_; // Gen-PID == Reco-PID, is_primary
   std::vector<TH2F*> pid_tracks_prim_; // Gen-PID == Reco-PID, !is_primary
   std::vector<TH2F*> pdg_tracks_sec_; // is_primary
@@ -76,19 +80,6 @@ private:
   std::vector<TH2F*> pid_tracks_mismatch_; // Gen-PID != Reco-PID
   std::vector<TH2F*> pid_reco_; // pid_prim+pid_sec+pid_mismatch
 
-  std::vector<TH2F*> pid_prim_phi_pt_midrapidity_;
-  std::vector<TH2F*> pdg_prim_phi_pt_midrapidity_;
-
-  std::vector<TH3F*> pid_prim_delta_phi_pt_rapidity_;
-  std::vector<TH3F*> pdg_prim_delta_phi_pt_rapidity_;
-
-  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers0_;
-  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers1_;
-  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers2_;
-  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers3_;
-
-  std::vector<TH3F*> pgd_prim_delta_phi_pt_layers_all_;
-  TH3F* entries_vs_pT_y_n_tracks_sector_;
   TProfile* n_tr_sector_vs_centrality_;
 };
 } // namespace AnalysisTree
