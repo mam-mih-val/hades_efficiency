@@ -174,12 +174,6 @@ void RecoAcceptance::Exec() {
               ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
       }
     }
-    if( s_track.GetPid()==pid_code_ ){
-      if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
-        pdg_tracks_prim_.at(centrality_class)
-            ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
-      }
-    }
     if (s_track.GetPid()!=pid_code_ && r_track.GetPid()==pid_code_ )
       pid_tracks_mismatch_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
