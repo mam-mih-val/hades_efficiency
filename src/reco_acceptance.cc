@@ -53,26 +53,26 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     std::string name = "pdg_tracks_prim_" + std::to_string(percentile);
     pdg_tracks_prim_.push_back(new TH2F(name.data(),
                                         "; y-y_{beam};p_{T}, [GeV/c]; conuts",
-                                        15, y_axis, 10, pt_axis ));
+                                        180, -0.85, 0.95, 200, 0.0, 2.0 ));
     name = "pdg_tracks_sec_" + std::to_string(percentile);
     pdg_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                       100, -1.0, 1.0, 100, 0.0, 2.0 ));
+                                       180, -0.85, 0.95, 200, 0.0, 2.0 ));
 
     name = "pid_tracks_prim_" + std::to_string(percentile);
     pid_tracks_prim_.push_back(new TH2F(name.data(),
                                         ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                        15, y_axis, 10, pt_axis ));
+                                        180, -0.85, 0.95, 200, 0.0, 2.0 ));
     name = "pid_tracks_sec_" + std::to_string(percentile);
     pid_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                       100, -1.0, 1.0, 100, 0.0, 2.0 ));
+                                       180, -0.85, 0.95, 200, 0.0, 2.0 ));
     name = "pid_tracks_mismatch_" + std::to_string(percentile);
     pid_tracks_mismatch_.push_back(
-        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -1.0, 1.0, 100, 0.0,2.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 180, -0.85, 0.95, 200, 0.0, 2.0));
     name = "pid_reco_" + std::to_string(percentile);
     pid_reco_.push_back(
-        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -1.0, 1.0, 100, 0.0,2.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 180, -0.85, 0.95, 200, 0.0, 2.0));
 
     name = "n_tracks_in_sector_" + std::to_string(percentile);
     n_tracks_in_sector_.push_back( new TH1F( name.c_str(), ";N_{tr}", 30, 0, 30 ) );
