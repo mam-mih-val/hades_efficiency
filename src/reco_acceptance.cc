@@ -73,6 +73,9 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     name = "pid_reco_" + std::to_string(percentile);
     pid_reco_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 180, -0.85, 0.95, 200, 0.0, 2.0));
+    name = "rec_occupancy_" + std::to_string(percentile);
+    rec_occupancy_.push_back(
+        new TH2F(name.data(), ";#eta;p, [GeV/c];  conuts", 210, 0.0, 2.1, 250, 0.0, 5.0));
 
     name = "n_tracks_in_sector_" + std::to_string(percentile);
     n_tracks_in_sector_.push_back( new TH1F( name.c_str(), ";N_{tr}", 30, 0, 30 ) );
@@ -142,7 +145,7 @@ void RecoAcceptance::Exec() {
     auto r_track = reco_tracks_->GetChannel(i);
     auto r_hit = meta_hits_->GetChannel(meta_id);
     auto s_track = sim_tracks_->GetChannel((sim_id));
-
+    rec_occupancy_.at(centrality_class)->Fill(s_track.GetEta(), s_track.GetP());
     auto chi2 = r_track.GetField<float>(fields_id_.at(CHI2));
     auto dca_xy = r_track.GetField<float>(fields_id_.at(DCA_XY));
     auto dca_z = r_track.GetField<float>(fields_id_.at(DCA_Z));
@@ -195,6 +198,8 @@ void RecoAcceptance::Finish() {
     pid_tracks_mismatch_.at(i)->Write();
 
     n_tracks_in_sector_.at(i)->Write();
+
+    rec_occupancy_.at(i)->Write();
   }
 }
 void RecoAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }

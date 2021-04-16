@@ -53,6 +53,7 @@ private:
   int pid_code_=2212;
 
   std::map<int, int> fields_id_;
+  std::vector<TH2F *> gen_occupancy_;
   std::vector<TH2F *> gen_tracks_prim_;
   std::vector<TH2F *> gen_tracks_sec_;
   std::vector<TH3F*> gen_prim_phi_pt_rapidity_;

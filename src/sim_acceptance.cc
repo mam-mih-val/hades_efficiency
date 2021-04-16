@@ -3,6 +3,7 @@
 //
 
 #include "sim_acceptance.h"
+#include <TDatabasePDG.h>
 
 namespace AnalysisTree {
 void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
@@ -37,6 +38,10 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     gen_tracks_sec_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
                  180, -0.85, 0.95, 200, 0.0, 2.0));
+    name = "gen_occupancy_" + std::to_string(percentile);
+    gen_occupancy_.push_back(
+        new TH2F(name.data(), ";#eta;p, [GeV/c]; conuts",
+                 210, 0.0, 2.1, 250, 0.0, 2.5));
   }
 }
 void SimAcceptance::Exec() {
@@ -49,10 +54,19 @@ void SimAcceptance::Exec() {
   int n_sim_tracks = sim_tracks_->GetNumberOfChannels();
   for (int i = 0; i < n_sim_tracks; ++i) {
     auto s_track = (sim_tracks_->GetChannel(i));
-    if (s_track.GetPid() != pid_code_)
-      continue;
     float m_sim = s_track.GetMass();
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
+    int charge=0;
+    if( TDatabasePDG::Instance()->GetParticle(s_track.GetPid()) )
+      charge = TDatabasePDG::Instance()->GetParticle(s_track.GetPid())->Charge() / 3;
+    else{
+      charge = (int)(s_track.GetPid() / 1E+4) % (int)1e+3;
+    }
+    if(charge!=0)
+      gen_occupancy_.at(centrality_class)->Fill(p_sim.PseudoRapidity(), p_sim.P());
+    if (s_track.GetPid() != pid_code_)
+      continue;
+
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
@@ -66,6 +80,7 @@ void SimAcceptance::Finish() {
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
+    gen_occupancy_.at(i)->Write();
   }
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }

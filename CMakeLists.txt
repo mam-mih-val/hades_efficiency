@@ -39,7 +39,7 @@ set(SOURCES
 add_definitions(${ROOT_CXX_FLAGS})
 
 add_executable(acceptance src/acceptance.cc ${SOURCES} ${HEADERS})
-target_link_libraries(acceptance ${ROOT_LIBRARIES} AnalysisTreeBase AnalysisTreeInfra $ENV{HadesUtils_DIR}/lib/libHadesUtils.so)
+target_link_libraries(acceptance ${ROOT_LIBRARIES} ROOT::EG AnalysisTreeBase AnalysisTreeInfra $ENV{HadesUtils_DIR}/lib/libHadesUtils.so)
 
 add_executable(efficiency src/efficiency.cc)
 target_link_libraries(efficiency ${ROOT_LIBRARIES})
@@ -55,3 +55,6 @@ target_link_libraries(equal_bins ${ROOT_LIBRARIES})
 
 add_executable(theta_p src/theta_p.cc)
 target_link_libraries(theta_p ${ROOT_LIBRARIES})
+
+add_executable(occupancy src/calculate_occupancy.cc)
+target_link_libraries(occupancy ${ROOT_LIBRARIES})

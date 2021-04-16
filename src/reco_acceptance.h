@@ -73,6 +73,7 @@ private:
 
   std::vector<TH1F*> n_tracks_in_sector_;
 
+  std::vector<TH2F *> rec_occupancy_;
   std::vector<TH2F*> pdg_tracks_prim_; // Gen-PID == Reco-PID, is_primary
   std::vector<TH2F*> pid_tracks_prim_; // Gen-PID == Reco-PID, !is_primary
   std::vector<TH2F*> pdg_tracks_sec_; // is_primary
