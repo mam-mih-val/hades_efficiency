@@ -27,7 +27,7 @@ int main(int n_args, char** args){
     if( bin_enries < part*entries )
       continue;
     else{
-      new_axis.push_back(histo->GetBinCenter(i-1));
+      new_axis.push_back(histo->GetBinLowEdge(i-1));
       bin_enries=0;
     }
   }
