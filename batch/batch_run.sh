@@ -17,14 +17,14 @@ while read line; do
 done < $filelist
 echo >> list.txt
 
-source /etc/profile.d/modules.sh
-module use /cvmfs/it.gsi.de/modulefiles/
-module load compiler/gcc/9
+#source /etc/profile.d/modules.sh
+#module use /cvmfs/it.gsi.de/modulefiles/
+#module load compiler/gcc/9
 
 echo "loading " $ownroot
 source $ownroot
 
 echo "executing $build_dir/acceptance list.txt"
-$build_dir/acceptance list.txt 1000010020
+$build_dir/acceptance list.txt pgd_code
 
 echo JOB FINISHED!
