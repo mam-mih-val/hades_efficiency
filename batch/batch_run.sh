@@ -24,7 +24,7 @@ echo >> list.txt
 echo "loading " $ownroot
 source $ownroot
 
-echo "executing $build_dir/acceptance list.txt"
-$build_dir/acceptance list.txt pgd_code
+echo "executing $build_dir/acceptance list.txt $pgd_code"
+$build_dir/acceptance list.txt $pgd_code
 
 echo JOB FINISHED!
