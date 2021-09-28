@@ -14,7 +14,6 @@
 #include <AnalysisTree/Detector.hpp>
 
 #include <TH3F.h>
-#include <centrality.h>
 
 namespace AnalysisTree {
 class SimAcceptance : public FillTask {
@@ -53,12 +52,8 @@ private:
   int pid_code_=2212;
 
   std::map<int, int> fields_id_;
-  std::vector<TH2F *> gen_occupancy_;
   std::vector<TH2F *> gen_tracks_prim_;
   std::vector<TH2F *> gen_tracks_sec_;
-  std::vector<TH3F*> gen_prim_phi_pt_rapidity_;
-  std::vector<TH3F*> gen_prim_delta_phi_pt_rapidity_;
-  TH3F* entries_vs_pT_y_n_tracks_sector_;
 };
 } // namespace AnalysisTree
 #endif // EFFICIENCY_SRC_SIM_ACCEPTANCE_H_

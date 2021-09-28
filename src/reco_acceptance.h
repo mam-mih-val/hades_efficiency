@@ -15,8 +15,6 @@
 #include <AnalysisTree/Detector.hpp>
 #include <AnalysisTree/Matching.hpp>
 
-#include <centrality.h>
-
 namespace AnalysisTree {
 class RecoAcceptance : public FillTask{
 public:
@@ -80,8 +78,6 @@ private:
   std::vector<TH2F*> pid_tracks_sec_; // !is_primary
   std::vector<TH2F*> pid_tracks_mismatch_; // Gen-PID != Reco-PID
   std::vector<TH2F*> pid_reco_; // pid_prim+pid_sec+pid_mismatch
-
-  TProfile* n_tr_sector_vs_centrality_;
 };
 } // namespace AnalysisTree
 #endif // QUALITY_ASSURANCE_SRC_TREE_READER_H_

@@ -82,7 +82,6 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   }
   momentum_err_ = new TProfile("momentum_err", ";p, [GeV/c]; relative error",
                                100, 0.0, 3.5);
-  n_tr_sector_vs_centrality_ = new TProfile("det_tracks_sector_vs_centrality", ";tracks in sector; centrality (%)", 12, 0.0, 60.0);
 }
 
 std::array<int, 6> RecoAcceptance::CalcRecoSectorsOccupancy(int pid){
@@ -135,8 +134,6 @@ void RecoAcceptance::Exec() {
   }
   std::vector<int> sim_matches;
   int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
-  for( auto sector : reco_occupancy )
-    n_tr_sector_vs_centrality_->Fill(centrality, sector);
   for (int i = 0; i < n_reco_tracks; ++i) {
     int sim_id = reco_sim_matching_->GetMatchDirect(i);
     if( sim_id == AnalysisTree::UndefValueInt )
@@ -186,7 +183,6 @@ void RecoAcceptance::Exec() {
 
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
-  n_tr_sector_vs_centrality_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

@@ -39,9 +39,6 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
                  180, -0.85, 0.95, 200, 0.0, 2.0));
     name = "gen_occupancy_" + std::to_string(percentile);
-    gen_occupancy_.push_back(
-        new TH2F(name.data(), ";#eta;p, [GeV/c]; conuts",
-                 210, 0.0, 2.1, 250, 0.0, 2.5));
   }
 }
 void SimAcceptance::Exec() {
@@ -62,8 +59,6 @@ void SimAcceptance::Exec() {
     else{
       charge = (int)(s_track.GetPid() / 1E+4) % (int)1e+3;
     }
-    if(charge!=0)
-      gen_occupancy_.at(centrality_class)->Fill(p_sim.PseudoRapidity(), p_sim.P());
     if (s_track.GetPid() != pid_code_)
       continue;
 
@@ -80,7 +75,6 @@ void SimAcceptance::Finish() {
   for (size_t i = 0; i < gen_tracks_prim_.size(); ++i) {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
-    gen_occupancy_.at(i)->Write();
   }
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }
