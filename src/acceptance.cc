@@ -22,7 +22,7 @@ int main(int n_args, char** args){
   int pid_code = 2212;
   if( n_args == 3 )
     pid_code=atoi(args[2]);
-
+  std::cout << "Found PID-code " << pid_code << std::endl;
   auto *reco_acceptance = new AnalysisTree::RecoAcceptance;
   reco_acceptance->SetPidCode(pid_code);
   auto *sim_acceptance = new AnalysisTree::SimAcceptance;

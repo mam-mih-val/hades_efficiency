@@ -34,11 +34,11 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
     std::string name = "gen_tracks_prim_" + std::to_string(percentile);
     gen_tracks_prim_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
-                 180, -0.85, 0.95, 200, 0.0, 2.0));
+                 100, -0.85, 1.15, 125, 0.0, 2.5));
     name = "gen_tracks_sec_" + std::to_string(percentile);
     gen_tracks_sec_.push_back(
         new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c]; conuts",
-                 180, -0.85, 0.95, 200, 0.0, 2.0));
+                 100, -0.85, 1.15, 125, 0.0, 2.5));
     name = "gen_occupancy_" + std::to_string(percentile);
   }
 }

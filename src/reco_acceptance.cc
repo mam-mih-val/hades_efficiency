@@ -53,26 +53,26 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
     std::string name = "pdg_tracks_prim_" + std::to_string(percentile);
     pdg_tracks_prim_.push_back(new TH2F(name.data(),
                                         "; y-y_{beam};p_{T}, [GeV/c]; conuts",
-                                        180, -0.85, 0.95, 200, 0.0, 2.0 ));
+                                        100, -0.85, 1.15, 125, 0.0, 2.5 ));
     name = "pdg_tracks_sec_" + std::to_string(percentile);
     pdg_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                       180, -0.85, 0.95, 200, 0.0, 2.0 ));
+                                       100, -0.85, 1.15, 125, 0.0, 2.5 ));
 
     name = "pid_tracks_prim_" + std::to_string(percentile);
     pid_tracks_prim_.push_back(new TH2F(name.data(),
                                         ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                        180, -0.85, 0.95, 200, 0.0, 2.0 ));
+                                        100, -0.85, 1.15, 125, 0.0, 2.5 ));
     name = "pid_tracks_sec_" + std::to_string(percentile);
     pid_tracks_sec_.push_back(new TH2F(name.data(),
                                        ";y-y_{beam};p_{T}, [GeV/c];  conuts",
-                                       180, -0.85, 0.95, 200, 0.0, 2.0 ));
+                                       100, -0.85, 1.15, 125, 0.0, 2.5 ));
     name = "pid_tracks_mismatch_" + std::to_string(percentile);
     pid_tracks_mismatch_.push_back(
-        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 180, -0.85, 0.95, 200, 0.0, 2.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -0.85, 1.15, 125, 0.0, 2.5));
     name = "pid_reco_" + std::to_string(percentile);
     pid_reco_.push_back(
-        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 180, -0.85, 0.95, 200, 0.0, 2.0));
+        new TH2F(name.data(), ";y-y_{beam};p_{T}, [GeV/c];  conuts", 100, -0.85, 1.15, 125, 0.0, 2.5));
     name = "rec_occupancy_" + std::to_string(percentile);
     rec_occupancy_.push_back(
         new TH2F(name.data(), ";#eta;p, [GeV/c];  conuts", 210, 0.0, 2.1, 250, 0.0, 5.0));
