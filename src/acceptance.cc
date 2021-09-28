@@ -7,8 +7,6 @@
 
 #include <AnalysisTree/TaskManager.hpp>
 
-#include <cuts.h>
-
 #include "reco_acceptance.h"
 #include "sim_acceptance.h"
 
@@ -31,8 +29,8 @@ int main(int n_args, char** args){
   sim_acceptance->SetPidCode(pid_code);
   manager.AddTask(reco_acceptance);
   manager.AddTask(sim_acceptance);
-  manager.SetEventCuts(HadesUtils::Cuts::Get(HadesUtils::Cuts::BRANCH_TYPE::EVENT_HEADER,
-                                             HadesUtils::DATA_TYPE::AuAu_1_23AGeV));
+//  manager.SetEventCuts(HadesUtils::Cuts::Get(HadesUtils::Cuts::BRANCH_TYPE::EVENT_HEADER,
+//                                             HadesUtils::DATA_TYPE::AuAu_1_23AGeV));
 //  manager.AddBranchCut(HadesUtils::Cuts::Get(HadesUtils::Cuts::BRANCH_TYPE::MDC_TRACKS,
 //                                             HadesUtils::DATA_TYPE::AuAu_1_23AGeV));
 //  manager.AddBranchCut(HadesUtils::Cuts::Get(HadesUtils::Cuts::BRANCH_TYPE::META_HITS,
