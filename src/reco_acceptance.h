@@ -14,6 +14,7 @@
 #include <AnalysisTree/Cuts.hpp>
 #include <AnalysisTree/Detector.hpp>
 #include <AnalysisTree/Matching.hpp>
+#include <AnalysisTree/DataHeader.hpp>
 
 namespace AnalysisTree {
 class RecoAcceptance : public FillTask{
@@ -65,6 +66,7 @@ private:
   Matching*reco_sim_matching_{nullptr};
   Matching* mdc_meta_matching_{nullptr};
   int pid_code_=2212;
+  double y_beam_ =0.0;
 
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};

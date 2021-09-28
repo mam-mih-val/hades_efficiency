@@ -12,6 +12,7 @@
 #include <AnalysisTree/FillTask.hpp>
 #include <AnalysisTree/Cuts.hpp>
 #include <AnalysisTree/Detector.hpp>
+#include <AnalysisTree/DataHeader.hpp>
 
 #include <TH3F.h>
 
@@ -50,6 +51,7 @@ private:
   Particles *sim_tracks_{nullptr};
   Particles *reco_tracks_{nullptr};
   int pid_code_=2212;
+  double y_beam_=0.0;
 
   std::map<int, int> fields_id_;
   std::vector<TH2F *> gen_tracks_prim_;

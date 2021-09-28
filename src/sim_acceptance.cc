@@ -15,6 +15,7 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   auto reco_event_config = config_->GetBranchConfig("event_header");
   auto sim_tracks_config = config_->GetBranchConfig("sim_tracks");
   auto reco_tracks_config = config_->GetBranchConfig("mdc_vtx_tracks");
+  y_beam_ = data_header_->GetBeamRapidity();
 
   fields_id_.insert(std::make_pair(
       HITS_TOF_RPC, reco_event_config.GetFieldId("selected_tof_rpc_hits")));
@@ -64,11 +65,11 @@ void SimAcceptance::Exec() {
 
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
-          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+          ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
-          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+          ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
   }
 }
 void SimAcceptance::Finish() {

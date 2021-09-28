@@ -19,7 +19,7 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   auto sim_tracks_config = config_->GetBranchConfig("sim_tracks");
   auto reco_tracks_config = config_->GetBranchConfig("mdc_vtx_tracks");
   auto meta_hits_config = config_->GetBranchConfig("meta_hits");
-
+  y_beam_ = data_header_->GetBeamRapidity();
   fields_id_.insert(std::make_pair(
       HITS_TOF_RPC, reco_event_config.GetFieldId("selected_tof_rpc_hits")));
   fields_id_.insert(
@@ -158,25 +158,25 @@ void RecoAcceptance::Exec() {
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
 
     if( r_track.GetPid()==pid_code_ ){
-      pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
+      pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_prim_.at(centrality_class)
-            ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
+            ->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
         if( s_track.GetPid() == pid_code_ )
           pdg_tracks_prim_.at(centrality_class)
-              ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+              ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_sec_.at(centrality_class)
-            ->Fill(p_reco.Rapidity() - 0.74, p_reco.Pt());
+            ->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
         if (s_track.GetPid() == pid_code_)
           pdg_tracks_sec_.at(centrality_class)
-              ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+              ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
       }
     }
     if (s_track.GetPid()!=pid_code_ && r_track.GetPid()==pid_code_ )
       pid_tracks_mismatch_.at(centrality_class)
-          ->Fill(p_sim.Rapidity() - 0.74, p_sim.Pt());
+          ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
     sim_matches.push_back(sim_id);
   }
 }
