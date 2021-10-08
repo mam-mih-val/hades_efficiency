@@ -45,6 +45,11 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
+  pdg_tracks_cent_ = new TH3F("pdg_tracks_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
+                                   100, -0.85, 1.15,
+                                   125, 0.0, 2.5,
+                                   20, 0.0, 100.5);
+
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
@@ -162,9 +167,11 @@ void RecoAcceptance::Exec() {
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_prim_.at(centrality_class)
             ->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
-        if( s_track.GetPid() == pid_code_ )
+        if( s_track.GetPid() == pid_code_ ) {
           pdg_tracks_prim_.at(centrality_class)
               ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
+          pdg_tracks_cent_->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality);
+        }
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
         pid_tracks_sec_.at(centrality_class)
@@ -183,6 +190,7 @@ void RecoAcceptance::Exec() {
 
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
+  pdg_tracks_cent_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

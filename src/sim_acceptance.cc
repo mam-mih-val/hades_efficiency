@@ -26,6 +26,10 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
+  gen_tracks_prim_cent_ = new TH3F("gen_tracks_prim_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
+                                   100, -0.85, 1.15,
+                                   125, 0.0, 2.5,
+                                   20, 0.0, 100.5);
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
@@ -66,6 +70,7 @@ void SimAcceptance::Exec() {
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
+      gen_tracks_prim_cent_->Fill( p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality );
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
@@ -77,6 +82,7 @@ void SimAcceptance::Finish() {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
   }
+  gen_tracks_prim_cent_->Write();
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }
 } // namespace AnalysisTree

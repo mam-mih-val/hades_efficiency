@@ -54,6 +54,7 @@ private:
   double y_beam_=0.0;
 
   std::map<int, int> fields_id_;
+  TH3F* gen_tracks_prim_cent_;
   std::vector<TH2F *> gen_tracks_prim_;
   std::vector<TH2F *> gen_tracks_sec_;
 };

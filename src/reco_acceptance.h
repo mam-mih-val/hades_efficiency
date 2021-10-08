@@ -70,6 +70,7 @@ private:
 
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
+  TH3F* pdg_tracks_cent_;
 
   std::vector<TH1F*> n_tracks_in_sector_;
 
