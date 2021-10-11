@@ -51,9 +51,9 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
   std::vector<double> pt_axis{0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
   pdg_tracks_cent_ = new TH3F("pdg_tracks_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
-                                   y_axis.size()-1, y_axis.data(),
-                                   pt_axis.size()-1, y_axis.data(),
-                                   M0_axis.size()-1, M0_axis.data());
+                              y_axis.size()-1, y_axis.data(),
+                              pt_axis.size()-1, pt_axis.data(),
+                              M0_axis.size()-1, M0_axis.data());
 
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
