@@ -45,9 +45,9 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
-  std::vector<double> y_axis(16);
+  std::vector<double> y_axis;
   for(int j=0; j<16; ++j){ y_axis.push_back(-0.75+0.1* (double) j); }
-  std::vector<double> M0_axis(21);
+  std::vector<double> M0_axis;
   for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
   std::vector<double> pt_axis{0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
   pdg_tracks_cent_ = new TH3F("pdg_tracks_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
