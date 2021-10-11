@@ -26,10 +26,15 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
 
+  std::vector<double> y_axis(16);
+  for(int j=0; j<16; ++j){ y_axis.push_back(-0.75+0.1* (double) j); }
+  std::vector<double> M0_axis(21);
+  for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
+  std::vector<double> pt_axis{0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
   gen_tracks_prim_cent_ = new TH3F("gen_tracks_prim_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
-                                   100, -0.85, 1.15,
-                                   125, 0.0, 2.5,
-                                   20, 0.0, 100.5);
+                                   y_axis.size()-1, y_axis.data(),
+                                   pt_axis.size()-1, y_axis.data(),
+                                   M0_axis.size()-1, M0_axis.data());
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
