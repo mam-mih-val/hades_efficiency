@@ -25,12 +25,19 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
       std::make_pair(IS_PRIMARY, sim_tracks_config.GetFieldId("is_primary")));
   fields_id_.insert(std::make_pair(PSI_RP,
                                    sim_event_config.GetFieldId("reaction_plane")));
-
-  std::vector<double> y_axis;
-  for(int j=0; j<16; ++j){ y_axis.push_back(-0.75+0.1* (double) j); }
   std::vector<double> M0_axis;
   for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
-  std::vector<double> pt_axis{0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375, 0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+  std::vector<double> y_axis;
+  std::vector<double> pt_axis;
+  if( pid_code_ == 2212 ) {
+    pt_axis = {0, 0.29375, 0.35625, 0.41875, 0.48125, 0.54375,0.61875, 0.70625, 0.81875, 1.01875, 2.0};
+    for(int j=0; j<16; ++j){ y_axis.push_back(-0.75+0.1* (double) j); }
+  }
+  if( abs(pid_code_) == 211 ){
+    pt_axis = {0, 0.08, 0.105, 0.13, 0.155, 0.18, 0.21, 0.25, 0.315, 0.535, 1.0};
+    for(int j=0; j<18; ++j){ y_axis.push_back(-0.65+0.1* (double) j); }
+  }
+
   gen_tracks_prim_cent_ = new TH3F("gen_tracks_prim_cent", ";y-y_{beam};p_{T}, [GeV/c]; centrality (%)",
                                    y_axis.size()-1, y_axis.data(),
                                    pt_axis.size()-1, pt_axis.data(),
