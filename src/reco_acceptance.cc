@@ -61,6 +61,9 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                               y_axis.size()-1, y_axis.data(),
                               pt_axis.size()-1, pt_axis.data(),
                               M0_axis.size()-1, M0_axis.data());
+  theta_centrality_ = new TH2F( "pdg_tracks_theta_centrality", ";#theta [rad];centrality (%)",
+                               48, 0.3, 1.5,
+                               20, 0, 100);
 
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
@@ -180,6 +183,7 @@ void RecoAcceptance::Exec() {
           pdg_tracks_prim_.at(centrality_class)
               ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
           pdg_tracks_cent_->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality);
+          theta_centrality_->Fill( p_sim.Theta(), centrality );
         }
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
@@ -200,6 +204,7 @@ void RecoAcceptance::Exec() {
 void RecoAcceptance::Finish() {
   momentum_err_->Write();
   pdg_tracks_cent_->Write();
+  theta_centrality_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

@@ -42,6 +42,10 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
                                    y_axis.size()-1, y_axis.data(),
                                    pt_axis.size()-1, pt_axis.data(),
                                    M0_axis.size()-1, M0_axis.data());
+  theta_centrality_ = new TH2F( "gen_tracks_theta_centrality", ";#theta [rad];centrality (%)",
+                               48, 0.3, 1.5,
+                               20, 0, 100);
+
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
@@ -83,6 +87,7 @@ void SimAcceptance::Exec() {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
       gen_tracks_prim_cent_->Fill( p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality );
+      theta_centrality_->Fill( p_sim.Theta(), centrality );
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
@@ -95,6 +100,7 @@ void SimAcceptance::Finish() {
     gen_tracks_sec_.at(i)->Write();
   }
   gen_tracks_prim_cent_->Write();
+  theta_centrality_->Write();
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }
 } // namespace AnalysisTree
