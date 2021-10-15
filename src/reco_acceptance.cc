@@ -46,7 +46,9 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                                    sim_event_config.GetFieldId("reaction_plane")));
 
   std::vector<double> M0_axis;
-  for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
+  for(int j=0; j<21; ++j){ M0_axis.push_back(5.0* (double) j); }
+  std::vector<double> theta_axis;
+  for(int j=0; j<49; ++j){ theta_axis.push_back(0.3f+ 0.025*(double) j); }
   std::vector<double> y_axis;
   std::vector<double> pt_axis;
   if( pid_code_ == 2212 ) {
@@ -61,10 +63,22 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                               y_axis.size()-1, y_axis.data(),
                               pt_axis.size()-1, pt_axis.data(),
                               M0_axis.size()-1, M0_axis.data());
+  pdg_y_pT_theta_ = new TH3F("pdg_y_pT_theta_", ";y-y_{beam};p_{T}, [GeV/c]; #theta [rad]",
+                             y_axis.size()-1, y_axis.data(),
+                             pt_axis.size()-1, pt_axis.data(),
+                             theta_axis.size()-1, theta_axis.data());
+  theta_pT_centrality_ = new TH3F("pdg_theta_pT_centrality", ";#theta [rad];p_{T}, [GeV/c];centrality (%)",
+                             theta_axis.size()-1, theta_axis.data(),
+                             pt_axis.size()-1, pt_axis.data(),
+                                  M0_axis.size()-1, M0_axis.data());
+
   theta_centrality_ = new TH2F( "pdg_tracks_theta_centrality", ";#theta [rad];centrality (%)",
                                48, 0.3, 1.5,
                                20, 0, 100);
-
+  theta_centrality_all_ = new TH2F( "pdg_tracks_theta_centrality_profile", ";#theta [rad];centrality (%)",
+                                             48, 0.3, 1.5,
+                                             20, 0, 100);
+  centrality_distribution_ = new TH1F( "centrality", "; TOF+RPC hits centrality (%)", 20, 0, 100 );
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     std::string name = "pdg_tracks_prim_" + std::to_string(percentile);
@@ -143,6 +157,7 @@ void RecoAcceptance::Exec() {
   auto reco_occupancy = CalcRecoSectorsOccupancy();
   auto centrality = reco_header_->GetField<float>(
       config_->GetBranchConfig("event_header").GetFieldId("selected_tof_rpc_hits_centrality") );
+  centrality_distribution_->Fill(centrality);
   auto centrality_class = (size_t) ( (centrality-2.5)/5.0 );
   if (centrality_class > 11)
     return;
@@ -173,7 +188,7 @@ void RecoAcceptance::Exec() {
     float m_sim = s_track.GetMass();
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
-
+    theta_centrality_all_->Fill( p_sim.Theta(), centrality );
     if( r_track.GetPid()==pid_code_ ){
       pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
@@ -183,7 +198,9 @@ void RecoAcceptance::Exec() {
           pdg_tracks_prim_.at(centrality_class)
               ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
           pdg_tracks_cent_->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality);
+          pdg_y_pT_theta_->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt(), p_sim.Theta());
           theta_centrality_->Fill( p_sim.Theta(), centrality );
+          theta_pT_centrality_->Fill( p_sim.Theta(), p_sim.Pt(), centrality );
         }
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
@@ -202,9 +219,13 @@ void RecoAcceptance::Exec() {
 }
 
 void RecoAcceptance::Finish() {
+  centrality_distribution_->Write();
   momentum_err_->Write();
   pdg_tracks_cent_->Write();
   theta_centrality_->Write();
+  theta_centrality_all_->Write();
+  theta_pT_centrality_->Write();
+  pdg_y_pT_theta_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

@@ -53,6 +53,7 @@ private:
   int pid_code_=2212;
   double y_beam_=0.0;
   TH2F* theta_centrality_;
+  TH3F* theta_pT_centrality_;
 
   std::map<int, int> fields_id_;
   TH3F* gen_tracks_prim_cent_;

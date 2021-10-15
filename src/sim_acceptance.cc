@@ -27,6 +27,8 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
                                    sim_event_config.GetFieldId("reaction_plane")));
   std::vector<double> M0_axis;
   for(int j=0; j<21; ++j){ M0_axis.push_back(5.0f* (float) j); }
+  std::vector<double> theta_axis;
+  for(int j=0; j<49; ++j){ theta_axis.push_back(0.3f+ 0.025*(double) j); }
   std::vector<double> y_axis;
   std::vector<double> pt_axis;
   if( pid_code_ == 2212 ) {
@@ -45,6 +47,11 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
   theta_centrality_ = new TH2F( "gen_tracks_theta_centrality", ";#theta [rad];centrality (%)",
                                48, 0.3, 1.5,
                                20, 0, 100);
+  theta_pT_centrality_ = new TH3F("gen_theta_pT_centrality", ";#theta [rad];p_{T}, [GeV/c];centrality (%)",
+                                  theta_axis.size()-1, theta_axis.data(),
+                                  pt_axis.size()-1, pt_axis.data(),
+                                  M0_axis.size()-1, M0_axis.data());
+
 
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
@@ -88,6 +95,7 @@ void SimAcceptance::Exec() {
           ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
       gen_tracks_prim_cent_->Fill( p_sim.Rapidity() - y_beam_, p_sim.Pt(), centrality );
       theta_centrality_->Fill( p_sim.Theta(), centrality );
+      theta_pT_centrality_->Fill( p_sim.Theta(), p_sim.Pt(), centrality );
     }
     if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY)))
       gen_tracks_sec_.at(centrality_class)
@@ -100,6 +108,7 @@ void SimAcceptance::Finish() {
     gen_tracks_sec_.at(i)->Write();
   }
   gen_tracks_prim_cent_->Write();
+  theta_pT_centrality_->Write();
   theta_centrality_->Write();
 }
 void SimAcceptance::SetPidCode(int pid_code) { pid_code_ = pid_code; }

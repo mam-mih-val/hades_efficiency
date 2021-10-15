@@ -71,7 +71,11 @@ private:
   std::map<int, int> fields_id_;
   TProfile* momentum_err_{nullptr};
   TH3F* pdg_tracks_cent_;
+  TH3F* pdg_y_pT_theta_;
+  TH3F* theta_pT_centrality_;
   TH2F* theta_centrality_;
+  TH2F* theta_centrality_all_{nullptr};
+  TH1F* centrality_distribution_{nullptr};
 
   std::vector<TH1F*> n_tracks_in_sector_;
 
