@@ -49,6 +49,8 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   for(int j=0; j<21; ++j){ M0_axis.push_back(5.0* (double) j); }
   std::vector<double> theta_axis;
   for(int j=0; j<49; ++j){ theta_axis.push_back(0.3f+ 0.025*(double) j); }
+  std::vector<double> delta_phi_axis;
+  for(int j=0; j<17; ++j){ delta_phi_axis.push_back(-3.2+ 0.4*j); }
   std::vector<double> y_axis;
   std::vector<double> pt_axis;
   if( pid_code_ == 2212 ) {
@@ -71,7 +73,10 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
                              theta_axis.size()-1, theta_axis.data(),
                              pt_axis.size()-1, pt_axis.data(),
                                   M0_axis.size()-1, M0_axis.data());
-
+  pT_delta_phi_centrality_ = new TH3F("pdg_pT_delta_phi_centrality", ";p_{T} [GeV/c];#phi-#Psi [rad];centrality (%)",
+                                      pt_axis.size()-1, pt_axis.data(),
+                                      delta_phi_axis.size()-1, delta_phi_axis.data(),
+                                      M0_axis.size()-1, M0_axis.data());
   theta_centrality_ = new TH2F( "pdg_tracks_theta_centrality", ";#theta [rad];centrality (%)",
                                48, 0.3, 1.5,
                                20, 0, 100);
@@ -164,6 +169,8 @@ void RecoAcceptance::Exec() {
   for( size_t i=0; i<6; ++i ){
     n_tracks_in_sector_.at(centrality_class)->Fill( reco_occupancy.at(i) );
   }
+  auto psi_rp = sim_header_->GetField<float>( config_->GetBranchConfig("sim_header").GetFieldId("reaction_plane") );
+
   std::vector<int> sim_matches;
   int n_reco_tracks = reco_tracks_->GetNumberOfChannels();
   for (int i = 0; i < n_reco_tracks; ++i) {
@@ -201,6 +208,14 @@ void RecoAcceptance::Exec() {
           pdg_y_pT_theta_->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt(), p_sim.Theta());
           theta_centrality_->Fill( p_sim.Theta(), centrality );
           theta_pT_centrality_->Fill( p_sim.Theta(), p_sim.Pt(), centrality );
+          if( -0.05 < p_sim.Rapidity() - y_beam_ && p_sim.Rapidity() - y_beam_ < 0.05 ){
+            auto delta_phi = p_sim.Phi() - psi_rp;
+            if( delta_phi < -M_PI )
+              delta_phi+=2*M_PI;
+            if( delta_phi > M_PI )
+              delta_phi-=2*M_PI;
+            pT_delta_phi_centrality_->Fill( p_sim.Pt(), delta_phi, centrality );
+          }
         }
       }
       if (!s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){
@@ -226,6 +241,7 @@ void RecoAcceptance::Finish() {
   theta_centrality_all_->Write();
   theta_pT_centrality_->Write();
   pdg_y_pT_theta_->Write();
+  pT_delta_phi_centrality_->Write();
   for (size_t i = 0; i < pdg_tracks_prim_.size(); ++i) {
     pdg_tracks_prim_.at(i)->Write();
     pdg_tracks_sec_.at(i)->Write();

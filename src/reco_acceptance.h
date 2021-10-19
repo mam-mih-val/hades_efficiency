@@ -76,6 +76,7 @@ private:
   TH2F* theta_centrality_;
   TH2F* theta_centrality_all_{nullptr};
   TH1F* centrality_distribution_{nullptr};
+  TH3F* pT_delta_phi_centrality_;
 
   std::vector<TH1F*> n_tracks_in_sector_;
 
