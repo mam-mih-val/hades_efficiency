@@ -58,8 +58,11 @@ void SimAcceptance::Init(std::map<std::string, void *> &branch_map) {
                                       pt_axis.size()-1, pt_axis.data(),
                                       delta_phi_axis.size()-1, delta_phi_axis.data(),
                                       M0_axis.size()-1, M0_axis.data());
-
-
+  theta_centrality_all_ = new TH3F( "gen_pT_theta_centrality_all",
+                                   ";p_{T} [GeV/c];#theta [rad];centrality (%)",
+                                   pt_axis.size()-1, pt_axis.data(),
+                                   theta_axis.size()-1, theta_axis.data(),
+                                   M0_axis.size()-1, M0_axis.data());
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
     float y_axis[16];
@@ -95,9 +98,10 @@ void SimAcceptance::Exec() {
     else{
       charge = (int)(s_track.GetPid() / 1E+4) % (int)1e+3;
     }
+    if( charge !=0 )
+      theta_centrality_all_->Fill( p_sim.Pt(), p_sim.Theta(), centrality );
     if (s_track.GetPid() != pid_code_)
       continue;
-
     if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))) {
       gen_tracks_prim_.at(centrality_class)
           ->Fill(p_sim.Rapidity() - y_beam_, p_sim.Pt());
@@ -123,6 +127,7 @@ void SimAcceptance::Finish() {
     gen_tracks_prim_.at(i)->Write();
     gen_tracks_sec_.at(i)->Write();
   }
+  theta_centrality_all_->Write();
   gen_tracks_prim_cent_->Write();
   theta_pT_centrality_->Write();
   theta_centrality_->Write();

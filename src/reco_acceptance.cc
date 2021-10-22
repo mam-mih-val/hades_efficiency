@@ -80,9 +80,12 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   theta_centrality_ = new TH2F( "pdg_tracks_theta_centrality", ";#theta [rad];centrality (%)",
                                48, 0.3, 1.5,
                                20, 0, 100);
-  theta_centrality_all_ = new TH2F( "pdg_tracks_theta_centrality_profile", ";#theta [rad];centrality (%)",
-                                             48, 0.3, 1.5,
-                                             20, 0, 100);
+  theta_centrality_all_ = new TH3F( "pdg_pT_theta_centrality_all",
+                                   ";p_{T} [GeV/c] ;#theta [rad];centrality (%)",
+                                   pt_axis.size()-1, pt_axis.data(),
+                                   theta_axis.size()-1, theta_axis.data(),
+                                   M0_axis.size()-1, M0_axis.data());
+
   centrality_distribution_ = new TH1F( "centrality", "; TOF+RPC hits centrality (%)", 20, 0, 100 );
   for (int i = 0; i < 12; ++i) {
     int percentile = 2 + i * 5;
@@ -195,7 +198,7 @@ void RecoAcceptance::Exec() {
     float m_sim = s_track.GetMass();
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
-    theta_centrality_all_->Fill( p_sim.Theta(), centrality );
+    theta_centrality_all_->Fill( p_sim.Pt(), p_sim.Theta(), centrality );
     if( r_track.GetPid()==pid_code_ ){
       pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){

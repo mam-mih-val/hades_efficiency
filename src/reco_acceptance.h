@@ -74,7 +74,7 @@ private:
   TH3F* pdg_y_pT_theta_;
   TH3F* theta_pT_centrality_;
   TH2F* theta_centrality_;
-  TH2F* theta_centrality_all_{nullptr};
+  TH3F* theta_centrality_all_{nullptr};
   TH1F* centrality_distribution_{nullptr};
   TH3F* pT_delta_phi_centrality_;
 

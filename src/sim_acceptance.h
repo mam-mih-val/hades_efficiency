@@ -55,6 +55,7 @@ private:
   TH2F* theta_centrality_;
   TH3F* theta_pT_centrality_;
   TH3F* pT_delta_phi_centrality_;
+  TH3F* theta_centrality_all_{nullptr};
 
   std::map<int, int> fields_id_;
   TH3F* gen_tracks_prim_cent_;
