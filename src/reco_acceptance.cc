@@ -80,9 +80,8 @@ void RecoAcceptance::Init(std::map<std::string, void *> &branch_map) {
   theta_centrality_ = new TH2F( "pdg_tracks_theta_centrality", ";#theta [rad];centrality (%)",
                                48, 0.3, 1.5,
                                20, 0, 100);
-  theta_centrality_all_ = new TH3F( "pdg_pT_theta_centrality_all",
-                                   ";p_{T} [GeV/c] ;#theta [rad];centrality (%)",
-                                   pt_axis.size()-1, pt_axis.data(),
+  theta_centrality_all_ = new TH2F( "pdg_theta_centrality_all",
+                                   ";#theta [rad];centrality (%)",
                                    theta_axis.size()-1, theta_axis.data(),
                                    M0_axis.size()-1, M0_axis.data());
 
@@ -167,6 +166,14 @@ void RecoAcceptance::Exec() {
       config_->GetBranchConfig("event_header").GetFieldId("selected_tof_rpc_hits_centrality") );
   centrality_distribution_->Fill(centrality);
   auto centrality_class = (size_t) ( (centrality-2.5)/5.0 );
+  if( h1_centrality_parameters_ ){
+    auto nhits_meta = reco_header_->GetField<int>(
+        config_->GetBranchConfig("event_header").GetFieldId("selected_tof_rpc_hits") );
+    auto mult_bin = h1_centrality_parameters_->FindBin( nhits_meta );
+    centrality_class = (size_t)  h1_centrality_parameters_->GetBinContent( mult_bin )-1;
+    centrality = 2.5+5.0*centrality_class;
+  }
+
   if (centrality_class > 11)
     return;
   for( size_t i=0; i<6; ++i ){
@@ -198,7 +205,7 @@ void RecoAcceptance::Exec() {
     float m_sim = s_track.GetMass();
     auto p_reco = r_track.Get4MomentumByMass(m_reco);
     auto p_sim = s_track.Get4MomentumByMass(m_sim);
-    theta_centrality_all_->Fill( p_sim.Pt(), p_sim.Theta(), centrality );
+    theta_centrality_all_->Fill( p_sim.Theta(), centrality );
     if( r_track.GetPid()==pid_code_ ){
       pid_reco_.at(centrality_class)->Fill(p_reco.Rapidity() - y_beam_, p_reco.Pt());
       if (s_track.GetField<bool>(fields_id_.at(IS_PRIMARY))){

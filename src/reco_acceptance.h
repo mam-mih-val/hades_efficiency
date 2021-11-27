@@ -25,6 +25,9 @@ public:
   void Exec() override;
   void Finish() override;
   void SetPidCode(int pid_code);
+  void SetCentralityParameters(TH1 *h_1_centrality_parameters) {
+    h1_centrality_parameters_ = h_1_centrality_parameters;
+  }
 
 private:
   std::array<int, 6> CalcRecoSectorsOccupancy(int pid=-1);
@@ -74,11 +77,13 @@ private:
   TH3F* pdg_y_pT_theta_;
   TH3F* theta_pT_centrality_;
   TH2F* theta_centrality_;
-  TH3F* theta_centrality_all_{nullptr};
+  TH2F* theta_centrality_all_{nullptr};
   TH1F* centrality_distribution_{nullptr};
   TH3F* pT_delta_phi_centrality_;
 
   std::vector<TH1F*> n_tracks_in_sector_;
+
+  TH1* h1_centrality_parameters_{nullptr};
 
   std::vector<TH2F *> rec_occupancy_;
   std::vector<TH2F*> pdg_tracks_prim_; // Gen-PID == Reco-PID, is_primary

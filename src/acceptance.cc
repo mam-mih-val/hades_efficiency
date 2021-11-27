@@ -20,13 +20,30 @@ int main(int n_args, char** args){
   std::string list{args[1]};
   AnalysisTree::TaskManager manager({list}, {"hades_analysis_tree"});
   int pid_code = 2212;
-  if( n_args == 3 )
+  std::string centrality_parameter_file_name;
+  TFile* centrality_parameter_file{nullptr};
+  TH1* centrality_parameter_histogram{nullptr};
+  if( n_args > 2 ) {
     pid_code=atoi(args[2]);
-  std::cout << "Found PID-code " << pid_code << std::endl;
+    std::cout << "Found PID-code " << pid_code << std::endl;
+  }
+  if( n_args > 3 ) {
+    centrality_parameter_file_name = args[3];
+    std::cout << "Found centrality parameter file " << centrality_parameter_file_name << std::endl;
+    centrality_parameter_file = TFile::Open( centrality_parameter_file_name.c_str() );
+    if( centrality_parameter_file )
+      centrality_parameter_file->GetObject( "Centrality/TOFRPC_5pc_fixedCuts", centrality_parameter_histogram );
+    else
+      std::cerr << "Couldn't open centrality parameter file " << centrality_parameter_file_name << std::endl;
+  }
   auto *reco_acceptance = new AnalysisTree::RecoAcceptance;
   reco_acceptance->SetPidCode(pid_code);
   auto *sim_acceptance = new AnalysisTree::SimAcceptance;
   sim_acceptance->SetPidCode(pid_code);
+  if( centrality_parameter_histogram ){
+    reco_acceptance->SetCentralityParameters(centrality_parameter_histogram);
+    sim_acceptance->SetCentralityParameters(centrality_parameter_histogram);
+  }
   manager.AddTask(reco_acceptance);
   manager.AddTask(sim_acceptance);
 //  manager.SetEventCuts(HadesUtils::Cuts::Get(HadesUtils::Cuts::BRANCH_TYPE::EVENT_HEADER,

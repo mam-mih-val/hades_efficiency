@@ -23,6 +23,7 @@ public:
   void Exec() override;
   void Finish() override;
   void SetPidCode(int pid_code);
+  void SetCentralityParameters(TH1 *h_1_centrality_parameters);
 
 private:
   size_t WhatSector( double phi ){
@@ -55,7 +56,10 @@ private:
   TH2F* theta_centrality_;
   TH3F* theta_pT_centrality_;
   TH3F* pT_delta_phi_centrality_;
-  TH3F* theta_centrality_all_{nullptr};
+  TH3F* y_pT_theta_;
+  TH2F* theta_centrality_all_{nullptr};
+
+  TH1* h1_centrality_parameters_{nullptr};
 
   std::map<int, int> fields_id_;
   TH3F* gen_tracks_prim_cent_;
